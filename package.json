@@ -1,7 +1,7 @@
 {
   "name": "100prepremium",
-  "version": "2.2.5",
-  "description": "100prepremium v2.2.5 - Suite Antidetect y Gestión de Perfiles Multicuenta",
+  "version": "2.2.6",
+  "description": "100prepremium v2.2.6 - Suite Antidetect y Gestión de Perfiles Multicuenta",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

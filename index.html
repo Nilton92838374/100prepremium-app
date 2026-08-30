@@ -838,7 +838,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.2.4</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.2.6</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -857,13 +857,13 @@
 
         <form class="login-form" id="login-form">
           <div class="form-control-group">
-            <label for="login-email">Usuario</label>
-            <input type="text" id="login-email" class="login-input" value="admin" placeholder="ej. admin" required>
+            <label for="login-email">Usuario / Email</label>
+            <input type="text" id="login-email" class="login-input" value="admin" placeholder="ej. admin o cliente@ejemplo.com" required autocomplete="username">
           </div>
 
           <div class="form-control-group">
             <label for="login-pass">Contraseña</label>
-            <input type="password" id="login-pass" class="login-input" value="1234" placeholder="••••••••" required>
+            <input type="password" id="login-pass" class="login-input" value="1234" placeholder="••••••••" required autocomplete="current-password">
           </div>
 
           <div class="remember-container">
@@ -949,7 +949,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.2.4</h1>
+          <h1 id="app-version-header">100prepremium v2.2.6</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1451,6 +1451,8 @@
         });
       }
 
+      let currentUserId = null;
+
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const usuario = document.getElementById('login-email').value.trim();
@@ -1460,6 +1462,7 @@
           const res = await window.api.login({ usuario, password });
           if (res && res.success) {
             currentUserRole = res.role || 'cliente';
+            currentUserId = res.userId || null;
             currentUserAssignedProfiles = res.perfilesAsignados || [];
 
             aplicarControlDeRoles();

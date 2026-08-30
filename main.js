@@ -311,7 +311,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('get-hwid', () => hwid);
 
-  // LOGIN CON ARQUITECTURA DE ROLES (superadmin, admin, cliente)
+  // LOGIN CON ARQUITECTURA DE ROLES NATIVA SUPABASE CLOUD (superadmin, admin, cliente)
   ipcMain.handle('login', async (_event, credentials) => {
     const creds = credentials || {};
     const usuarioInput = creds.usuario ? creds.usuario.trim() : '';
@@ -329,31 +329,39 @@ app.whenReady().then(() => {
       return { success: true, role: 'admin', usuario: 'admin', mensaje: "Bienvenido Administrador" };
     }
 
-    const clientes = cargarClientes();
-    const clienteEncontrado = clientes.find(c => (c.usuario && c.usuario.trim() === usuarioInput) || (c.nombre && c.nombre.trim() === usuarioInput));
+    // Formateo transparente de usuario a email para Supabase Auth
+    const emailFormatted = usuarioInput.includes('@') ? usuarioInput : `${usuarioInput}@100prepremium.com`;
 
-    if (clienteEncontrado) {
-      if (clienteEncontrado.password === passwordInput) {
-        if (clienteEncontrado.fechaVencimiento) {
-          const timestampVencimiento = new Date(clienteEncontrado.fechaVencimiento).getTime();
-          if (!isNaN(timestampVencimiento) && Date.now() > timestampVencimiento) {
-            return { success: false, mensaje: "Tu suscripción ha expirado. Contacta al soporte." };
-          }
+    if (supabase) {
+      try {
+        const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
+          email: emailFormatted,
+          password: passwordInput
+        });
+
+        if (!authErr && authData && authData.user) {
+          const userId = authData.user.id;
+          const { data: roleData } = await supabase
+            .from('usuarios_roles')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+
+          const rol = roleData ? roleData.rol : 'cliente';
+          return {
+            success: true,
+            role: rol,
+            usuario: usuarioInput.split('@')[0],
+            userId: userId,
+            mensaje: `Acceso concedido como ${rol.toUpperCase()}`
+          };
         }
-
-        return { 
-          success: true, 
-          role: 'cliente', 
-          usuario: clienteEncontrado.usuario,
-          perfilesAsignados: clienteEncontrado.perfilesAsignados || [],
-          mensaje: "Acceso concedido como Cliente" 
-        };
-      } else {
-        return { success: false, mensaje: "Contraseña incorrecta." };
+      } catch (sbErr) {
+        console.warn('[SUPABASE AUTH WARNING]', sbErr.message);
       }
     }
 
-    return { success: false, mensaje: "Usuario no registrado." };
+    return { success: false, mensaje: "Credenciales incorrectas o usuario no registrado en Supabase Cloud." };
   });
 
   // LOGOUT (CERRAR SESIÓN)
@@ -493,13 +501,16 @@ app.whenReady().then(() => {
   ipcMain.handle('crear-usuario-admin', async (_event, userData) => {
     const { email, password, rol } = userData || {};
     if (!email || !password || password.length < 6) {
-      return { success: false, mensaje: 'Email y contraseña (mínimo 6 caracteres) son requeridos.' };
+      return { success: false, mensaje: 'Usuario/Email y contraseña (mínimo 6 caracteres) son requeridos.' };
     }
+
+    const emailFormatted = email.includes('@') ? email.trim() : `${email.trim()}@100prepremium.com`;
+    const usuarioVal = email.split('@')[0].trim();
 
     if (supabase) {
       try {
         const { data: authData, error: authErr } = await supabase.auth.signUp({
-          email: email.trim(),
+          email: emailFormatted,
           password: password.trim()
         });
 
@@ -508,37 +519,25 @@ app.whenReady().then(() => {
         if (authData && authData.user) {
           await supabase.from('usuarios_roles').insert([{
             user_id: authData.user.id,
-            email: email.trim(),
-            usuario: email.split('@')[0],
+            email: emailFormatted,
+            usuario: usuarioVal,
             rol: rol || 'cliente'
           }]);
 
           await supabase.from('clientes').insert([{
             user_id: authData.user.id,
-            usuario: email.split('@')[0],
+            usuario: usuarioVal,
             fecha_inicio: new Date().toISOString()
           }]);
 
-          return { success: true, usuario: authData.user, mensaje: 'Usuario registrado exitosamente en Supabase Cloud.' };
+          return { success: true, usuario: authData.user, mensaje: `Usuario ${usuarioVal} registrado exitosamente en la nube Supabase.` };
         }
       } catch (err) {
-        return { success: false, mensaje: err.message };
+        return { success: false, mensaje: 'Error registrando usuario en Supabase Cloud: ' + err.message };
       }
     }
 
-    const clientes = cargarClientes();
-    const nuevoId = 'c' + (Date.now() % 10000).toString();
-    const usuarioVal = email.split('@')[0];
-    clientes.push({
-      id: nuevoId,
-      usuario: usuarioVal,
-      password: password,
-      nombre: usuarioVal,
-      fechaInicio: new Date().toISOString(),
-      perfilesAsignados: []
-    });
-    guardarClientes(clientes);
-    return { success: true, mensaje: 'Usuario registrado localmente.' };
+    return { success: false, mensaje: 'Supabase Cloud no está conectado. Verifica tu SUPABASE_URL y SUPABASE_ANON_KEY.' };
   });
 
   ipcMain.handle('obtener-usuarios', async () => {
