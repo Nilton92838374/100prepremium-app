@@ -2,6 +2,10 @@ require('electron-unhandled')();
 
 const electron = require('electron');
 const app = electron.app;
+
+// OPTIMIZACIÓN EXTREMA DE RAM Y GPU: Desactivar aceleración de hardware al inicio
+app.disableHardwareAcceleration();
+
 const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 const dialog = electron.dialog;
@@ -9,18 +13,62 @@ const session = electron.session;
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
 const { createClient } = require('@supabase/supabase-js');
+const supabaseConfig = require('./supabaseConfig');
 
-// Configuración de Supabase Cloud (Variables de Entorno o Fallback)
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://TU_PROYECTO.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'TU_SUPABASE_ANON_KEY';
+// Configuración de Supabase Cloud
+const SUPABASE_URL = supabaseConfig.SUPABASE_URL;
+const SUPABASE_ANON_KEY = supabaseConfig.SUPABASE_ANON_KEY;
 
 const supabase = (SUPABASE_URL && !SUPABASE_URL.includes('TU_PROYECTO'))
   ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
+
+// ==============================================================================
+// MÓDULO DE SEGURIDAD MILITAR: ENCRIPTACIÓN AES-256 PARA COOKIES Y DATOS DE NUBE
+// ==============================================================================
+const AES_SECRET_KEY = crypto.scryptSync('100prepremium-stealth-key-v29', 'antidetect-salt-master', 32);
+const AES_IV_LENGTH = 16;
+
+function encryptAES(text) {
+  if (!text) return '';
+  try {
+    const stringToEncrypt = (typeof text === 'object') ? JSON.stringify(text) : String(text);
+    const iv = crypto.randomBytes(AES_IV_LENGTH);
+    const cipher = crypto.createCipheriv('aes-256-cbc', AES_SECRET_KEY, iv);
+    let encrypted = cipher.update(stringToEncrypt, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return iv.toString('hex') + ':' + encrypted;
+  } catch (err) {
+    return (typeof text === 'object') ? JSON.stringify(text) : String(text);
+  }
+}
+
+function decryptAES(encryptedText) {
+  if (!encryptedText) return '';
+  try {
+    if (typeof encryptedText === 'object') return encryptedText;
+    const parts = String(encryptedText).split(':');
+    if (parts.length !== 2) {
+      try { return JSON.parse(encryptedText); } catch (e) { return encryptedText; }
+    }
+    const iv = Buffer.from(parts[0], 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-cbc', AES_SECRET_KEY, iv);
+    let decrypted = decipher.update(parts[1], 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    try {
+      return JSON.parse(decrypted);
+    } catch (e) {
+      return decrypted;
+    }
+  } catch (err) {
+    try { return JSON.parse(encryptedText); } catch (e) { return encryptedText; }
+  }
+}
 
 const nodeMachineId = require('node-machine-id');
 const machineIdSync = nodeMachineId.machineIdSync;
@@ -834,9 +882,12 @@ app.whenReady().then(() => {
         }
       });
 
-      // Guardar en estado activo y manejar el cierre de la ventana
+      // Guardar en estado activo y manejar el cierre de la ventana con purga explícita de RAM
       perfilesActivos.set(idStr, winPerfil);
-      winPerfil.on('closed', () => {
+      winPerfil.on('closed', async () => {
+        try {
+          await perfilSession.clearCache();
+        } catch (e) {}
         perfilesActivos.delete(idStr);
         if (mainWindow && !mainWindow.isDestroyed()) {
           mainWindow.webContents.send('perfil-actualizado', { id: idStr, estado: 'cerrado' });
@@ -867,7 +918,14 @@ app.whenReady().then(() => {
     const idStr = id ? id.toString() : '';
     const winPerfil = perfilesActivos.get(idStr);
     if (winPerfil) {
-      if (!winPerfil.isDestroyed()) winPerfil.close();
+      try {
+        const perfilSession = session.fromPartition('persist:perfil-' + idStr);
+        await perfilSession.clearCache();
+      } catch (e) {}
+
+      if (!winPerfil.isDestroyed()) {
+        winPerfil.destroy();
+      }
       perfilesActivos.delete(idStr);
     }
     return { success: true };

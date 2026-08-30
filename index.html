@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>100prepremium v2.2.3 - Antidetect Suite</title>
+  <title>100prepremium v2.2.9 - Suite Antidetección Profesional</title>
 
   <!-- FLATPICKR CDN ESTILOS (TEMA OSCURO PRO) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -12,16 +12,18 @@
 
   <style>
     :root {
-      --bg-main: #040812;
-      --panel-bg: #0C1425;
-      --border-sub: #1A2844;
-      --primary-btn: #00E5FF;
-      --primary-hover: #00B4D8;
-      --highlight: #00FFCC;
-      --text-main: #F0F6FC;
-      --text-muted: #8494A5;
-      --error-color: #FF3366;
-      --warning: #FFC107;
+      --bg-main: #0a0a0a;
+      --panel-bg: #1e1e1e;
+      --border-sub: #2d2d2d;
+      --primary-btn: #0062ff;
+      --primary-hover: #0052cc;
+      --highlight: #0062ff;
+      --text-main: #ffffff;
+      --text-muted: #a0a0a0;
+      --status-open: #00c853;
+      --status-closed: #ff5252;
+      --error-color: #ff5252;
+      --warning: #e0af68;
     }
 
     * {
@@ -838,7 +840,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.2.6</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.2.9</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -895,32 +897,41 @@
             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
             <line x1="8" y1="21" x2="16" y2="21"/>
           </svg>
-          Gestión de Perfiles
+          Perfiles
         </div>
 
-        <div class="nav-item admin-only" id="nav-clientes">
+        <div class="nav-item admin-only" id="nav-proxies">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          Proxies
+        </div>
+
+        <div class="nav-item admin-only" id="nav-miembros">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
-          Clientes y Licencias
+          Miembros
         </div>
 
-        <div class="nav-item admin-only" id="nav-usuarios">
+        <div class="nav-item admin-only" id="nav-grupos">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <polyline points="16 11 18 13 22 9"/>
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
-          Gestión de Usuarios
+          Grupos de miembros
         </div>
 
-        <div class="nav-item admin-only" id="nav-avisos">
+        <div class="nav-item admin-only" id="nav-registros">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            <polyline points="4 17 10 11 4 5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
           </svg>
-          Avisos del Sistema
+          Registros
         </div>
 
         <div class="nav-item admin-only" id="nav-configuracion">
@@ -928,15 +939,7 @@
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
-          Configuración
-        </div>
-
-        <div class="nav-item admin-only" id="nav-cmd">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="4 17 10 11 4 5"/>
-            <line x1="12" y1="19" x2="20" y2="19"/>
-          </svg>
-          Terminal CMD
+          Configuración global
         </div>
       </div>
 
@@ -949,7 +952,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.2.6</h1>
+          <h1 id="app-version-header">100prepremium v2.2.9</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -972,24 +975,30 @@
         <div class="view-section active" id="view-perfiles">
           <div class="table-container">
             <div class="table-header-title">
-              <h3 id="profiles-section-title">Perfiles Configurados</h3>
-              <button class="btn-create admin-only" id="btn-open-modal-perfil">
-                + Nuevo Perfil
-              </button>
+              <h3 id="profiles-section-title">Navegadores Antidetección</h3>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-create admin-only" id="btn-open-modal-perfil" style="background:#0062ff;">
+                  + Crear Perfil
+                </button>
+                <button class="btn-create admin-only" id="btn-open-modal-grupo" style="background:#2d2d2d; color:#fff; border:1px solid var(--border-sub);">
+                  + Crear grupo
+                </button>
+              </div>
             </div>
 
-            <div style="padding: 10px 16px; background: rgba(26, 40, 68, 0.4); border-bottom: 1px solid var(--border-sub); display: flex; gap: 10px; align-items: center;">
-              <input type="text" id="search-perfiles-input" placeholder="🔍 Buscar por nombre, etiqueta o categoría..." style="flex:1; background: #040812; border:1px solid var(--border-sub); color:#fff; padding:8px 12px; border-radius:6px; outline:none; font-size:0.88rem;">
+            <div style="padding: 10px 16px; background: #1e1e1e; border-bottom: 1px solid var(--border-sub); display: flex; gap: 10px; align-items: center;">
+              <input type="text" id="search-perfiles-input" placeholder="🔍 Buscar perfiles por nombre, etiqueta, grupo u observación..." style="flex:1; background: #0a0a0a; border:1px solid var(--border-sub); color:#fff; padding:8px 12px; border-radius:6px; outline:none; font-size:0.88rem;">
             </div>
 
             <table class="profiles-table">
               <thead>
                 <tr>
-                  <th>Número</th>
                   <th>Nombre</th>
-                  <th>Categoría</th>
+                  <th>Observación</th>
+                  <th>Grupo</th>
                   <th>Etiqueta</th>
-                  <th>Estado / Proxy</th>
+                  <th>Proxy</th>
+                  <th>Estado</th>
                   <th>Operación</th>
                 </tr>
               </thead>
@@ -1059,64 +1068,108 @@
           </div>
         </div>
 
-        <!-- SECCIÓN 5: TERMINAL CMD -->
-        <div class="view-section admin-only" id="view-cmd">
+        <!-- SECCIÓN PROXIES -->
+        <div class="view-section admin-only" id="view-proxies">
           <div class="table-container">
             <div class="table-header-title">
-              <h3>Terminal de Registros del Sistema (CMD)</h3>
-              <button class="btn-action-sm" id="btn-clear-cmd">Limpiar Consola</button>
-            </div>
-            <div id="cmd-console" style="background:#000000; color:#00FF00; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; padding:16px; min-height:420px; max-height:550px; overflow-y:auto; border-radius:6px; border:1px solid var(--border-sub); line-height:1.4;">
-              <div style="color:#6FFFE9; margin-bottom:8px;">[SYSTEM] Terminal CMD 100prepremium v2.5 iniciada. Escuchando logs en tiempo real...</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SECCIÓN 6: GESTIÓN DE USUARIOS CLOUD -->
-        <div class="view-section admin-only" id="view-usuarios">
-          <div class="table-container" style="margin-bottom: 20px;">
-            <div class="table-header-title">
-              <h3>Crear Nuevo Usuario / Rol (Supabase Cloud Auth)</h3>
-            </div>
-            <form id="form-crear-usuario-cloud" style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
-              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 220px;">
-                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Email del Usuario</label>
-                  <input type="email" id="user-email-input" class="login-input" placeholder="cliente@ejemplo.com" required style="width: 100%; margin-top: 4px;">
-                </div>
-                <div style="flex: 1; min-width: 220px;">
-                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Contraseña (Mínimo 6 caracteres)</label>
-                  <input type="password" id="user-pass-input" class="login-input" placeholder="••••••••" minlength="6" required style="width: 100%; margin-top: 4px;">
-                </div>
-                <div style="flex: 1; min-width: 180px;">
-                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Rol de Cuenta</label>
-                  <select id="user-rol-select" class="login-input" style="width: 100%; margin-top: 4px; background: #111A33; color: #fff;">
-                    <option value="cliente">Cliente (Modo Lectura / Asignado)</option>
-                    <option value="admin">Administrador (Acceso Total)</option>
-                  </select>
-                </div>
-              </div>
-              <button type="submit" class="btn-create" style="align-self: flex-start; padding: 10px 20px;">Registrar Usuario en Supabase</button>
-            </form>
-          </div>
-
-          <div class="table-container">
-            <div class="table-header-title">
-              <h3>Usuarios Registrados y Roles</h3>
+              <h3>Gestión de Servidores Proxy</h3>
+              <button class="btn-create" style="background:#0062ff;">+ Añadir Proxy</button>
             </div>
             <table class="profiles-table">
               <thead>
                 <tr>
-                  <th>User ID</th>
-                  <th>Email / Cuenta</th>
-                  <th>Usuario</th>
-                  <th>Rol Asignado</th>
+                  <th>Host / IP</th>
+                  <th>Puerto</th>
+                  <th>Tipo</th>
+                  <th>Protocolo</th>
+                  <th>Estado</th>
+                  <th>Operación</th>
                 </tr>
               </thead>
-              <tbody id="usuarios-tbody">
-                <!-- Carga dinámica de usuarios -->
+              <tbody>
+                <tr>
+                  <td class="col-name">192.168.1.100</td>
+                  <td>8080</td>
+                  <td><span class="badge-tag" style="background:#1e1e1e; color:#fff;">HTTP</span></td>
+                  <td>IPv4 Directo</td>
+                  <td><span style="color:#00c853; font-weight:700;">● Activo</span></td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#fff;">Verificar</button></td>
+                </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- SECCIÓN MIEMBROS -->
+        <div class="view-section admin-only" id="view-miembros">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Gestión de Miembros de Equipo</h3>
+              <button class="btn-create" style="background:#0062ff;">+ Invitar Miembro</button>
+            </div>
+            <table class="profiles-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Perfiles Asignados</th>
+                  <th>Estado</th>
+                  <th>Operación</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-name">admin@100prepremium.com</td>
+                  <td><span class="badge-tag" style="background:rgba(0,98,255,0.2); color:#0062ff;">ADMIN</span></td>
+                  <td>Todos (Global)</td>
+                  <td><span style="color:#00c853; font-weight:700;">● Activo</span></td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#fff;">Editar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECCIÓN GRUPOS -->
+        <div class="view-section admin-only" id="view-grupos">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Grupos de Miembros y Perfiles</h3>
+              <button class="btn-create" style="background:#0062ff;" id="btn-open-modal-grupo-tab">+ Nuevo Grupo</button>
+            </div>
+            <table class="profiles-table">
+              <thead>
+                <tr>
+                  <th>Nombre del Grupo</th>
+                  <th>Observación</th>
+                  <th>Perfiles Incluidos</th>
+                  <th>Miembros Asignados</th>
+                  <th>Operación</th>
+                </tr>
+              </thead>
+              <tbody id="grupos-tbody">
+                <tr>
+                  <td class="col-name">Grupo General</td>
+                  <td>Grupo predeterminado de perfiles SaaS</td>
+                  <td>Todos los perfiles</td>
+                  <td>Todos los miembros</td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#fff;">Editar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECCIÓN REGISTROS -->
+        <div class="view-section admin-only" id="view-registros">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Registros de Actividad del Sistema</h3>
+              <button class="btn-action-sm" id="btn-clear-cmd">Limpiar Consola</button>
+            </div>
+            <div id="cmd-console" style="background:#0a0a0a; color:#00FF00; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; padding:16px; min-height:420px; max-height:550px; overflow-y:auto; border-radius:6px; border:1px solid var(--border-sub); line-height:1.4;">
+              <div style="color:#0062ff; margin-bottom:8px;">[SYSTEM] Registros de Actividad v2.8 iniciados. Escuchando eventos...</div>
+            </div>
           </div>
         </div>
       </main>
@@ -1287,6 +1340,26 @@
         <div class="modal-actions">
           <button type="button" class="btn-cancel" id="btn-cancel-modal-perfil">Cancelar</button>
           <button type="submit" class="btn-save">Guardar Perfil</button>
+        </div>
+  <!-- MODAL CREAR GRUPO -->
+  <div class="modal-backdrop" id="modal-nuevo-grupo">
+    <div class="modal-card-2col" style="width:450px;">
+      <div class="modal-title" style="font-weight:700; font-size:1.1rem; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+        <span>Crear Grupo de Perfiles</span>
+        <button class="btn-close-modal" id="btn-close-modal-grupo" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-nuevo-grupo" style="padding:16px 0 0 0; display:flex; flex-direction:column; gap:14px;">
+        <div class="form-control-group">
+          <label for="grupo-nombre">Nombre del Grupo</label>
+          <input type="text" id="grupo-nombre" class="login-input" placeholder="ej. Grupo Cuentas IA" required>
+        </div>
+        <div class="form-control-group">
+          <label for="grupo-desc">Descripción / Observación</label>
+          <textarea id="grupo-desc" class="login-input" rows="3" placeholder="Observaciones opcionales del grupo..." style="resize:vertical;"></textarea>
+        </div>
+        <div class="modal-actions" style="margin-top:10px;">
+          <button type="button" class="btn-cancel" id="btn-cancel-modal-grupo">Cancelar</button>
+          <button type="submit" class="btn-save" style="background:#0062ff;">Guardar Grupo</button>
         </div>
       </form>
     </div>
@@ -1498,45 +1571,64 @@
         }
       }
 
-      // 2. NAVEGACIÓN DE PESTAÑAS
+      // 2. NAVEGACIÓN DE PESTAÑAS SAAS PROFESIONAL
       const navPerfiles = document.getElementById('nav-perfiles');
-      const navClientes = document.getElementById('nav-clientes');
-      const navAvisos = document.getElementById('nav-avisos');
+      const navProxies = document.getElementById('nav-proxies');
+      const navMiembros = document.getElementById('nav-miembros');
+      const navGrupos = document.getElementById('nav-grupos');
+      const navRegistros = document.getElementById('nav-registros');
       const navConfiguracion = document.getElementById('nav-configuracion');
-      const navCmd = document.getElementById('nav-cmd');
-      const navUsuarios = document.getElementById('nav-usuarios');
 
       const viewPerfiles = document.getElementById('view-perfiles');
-      const viewClientes = document.getElementById('view-clientes');
-      const viewAvisos = document.getElementById('view-avisos');
+      const viewProxies = document.getElementById('view-proxies');
+      const viewMiembros = document.getElementById('view-miembros');
+      const viewGrupos = document.getElementById('view-grupos');
+      const viewRegistros = document.getElementById('view-registros');
       const viewConfiguracion = document.getElementById('view-configuracion');
-      const viewCmd = document.getElementById('view-cmd');
-      const viewUsuarios = document.getElementById('view-usuarios');
 
       const viewSubtitle = document.getElementById('view-subtitle');
 
+      const allNavs = [navPerfiles, navProxies, navMiembros, navGrupos, navRegistros, navConfiguracion];
+      const allViews = [viewPerfiles, viewProxies, viewMiembros, viewGrupos, viewRegistros, viewConfiguracion];
+
       function cambiarPestana(navActive, viewActive, subtitle) {
-        [navPerfiles, navClientes, navAvisos, navConfiguracion, navCmd, navUsuarios].forEach(n => { if (n) n.classList.remove('active'); });
-        [viewPerfiles, viewClientes, viewAvisos, viewConfiguracion, viewCmd, viewUsuarios].forEach(v => { if (v) v.classList.remove('active'); });
+        allNavs.forEach(n => { if (n) n.classList.remove('active'); });
+        allViews.forEach(v => { if (v) v.classList.remove('active'); });
         if (navActive) navActive.classList.add('active');
         if (viewActive) viewActive.classList.add('active');
-        viewSubtitle.textContent = subtitle;
+        if (viewSubtitle) viewSubtitle.textContent = subtitle;
       }
 
-      navPerfiles.addEventListener('click', () => cambiarPestana(navPerfiles, viewPerfiles, 'Supervisión y control de motores de navegación aislados'));
-      navClientes.addEventListener('click', async () => {
-        cambiarPestana(navClientes, viewClientes, 'Asignación de perfiles y control de licencias por HWID');
-        await renderizarTablaClientes();
-      });
-      navAvisos.addEventListener('click', () => cambiarPestana(navAvisos, viewAvisos, 'Historial de notificaciones y alertas globales'));
-      navConfiguracion.addEventListener('click', () => cambiarPestana(navConfiguracion, viewConfiguracion, 'Parámetros HWID y estado del motor Antidetect'));
-      if (navCmd) {
-        navCmd.addEventListener('click', () => cambiarPestana(navCmd, viewCmd, 'Consola de diagnóstico y registros del sistema en tiempo real'));
-      }
-      if (navUsuarios) {
-        navUsuarios.addEventListener('click', async () => {
-          cambiarPestana(navUsuarios, viewUsuarios, 'Gestión de cuentas de usuario y asignación de roles en la nube');
-          await renderizarTablaUsuarios();
+      if (navPerfiles) navPerfiles.addEventListener('click', () => cambiarPestana(navPerfiles, viewPerfiles, 'Supervisión y control de motores de navegación aislados'));
+      if (navProxies) navProxies.addEventListener('click', () => cambiarPestana(navProxies, viewProxies, 'Gestión y verificación de servidores Proxy'));
+      if (navMiembros) navMiembros.addEventListener('click', () => cambiarPestana(navMiembros, viewMiembros, 'Gestión de miembros y permisos de equipo'));
+      if (navGrupos) navGrupos.addEventListener('click', () => cambiarPestana(navGrupos, viewGrupos, 'Organización por grupos de perfiles y clientes'));
+      if (navRegistros) navRegistros.addEventListener('click', () => cambiarPestana(navRegistros, viewRegistros, 'Registros de actividad del sistema en tiempo real'));
+      if (navConfiguracion) navConfiguracion.addEventListener('click', () => cambiarPestana(navConfiguracion, viewConfiguracion, 'Parámetros globales y estado del motor Antidetect'));
+
+      // MANEJADORES DEL MODAL CREAR GRUPO
+      const modalGrupo = document.getElementById('modal-nuevo-grupo');
+      const btnOpenModalGrupo = document.getElementById('btn-open-modal-grupo');
+      const btnOpenModalGrupoTab = document.getElementById('btn-open-modal-grupo-tab');
+      const btnCloseModalGrupo = document.getElementById('btn-close-modal-grupo');
+      const btnCancelModalGrupo = document.getElementById('btn-cancel-modal-grupo');
+      const formNuevoGrupo = document.getElementById('form-nuevo-grupo');
+
+      const abrirModalGrupo = () => { if (modalGrupo) modalGrupo.style.display = 'flex'; };
+      const cerrarModalGrupo = () => { if (modalGrupo) modalGrupo.style.display = 'none'; };
+
+      if (btnOpenModalGrupo) btnOpenModalGrupo.addEventListener('click', abrirModalGrupo);
+      if (btnOpenModalGrupoTab) btnOpenModalGrupoTab.addEventListener('click', abrirModalGrupo);
+      if (btnCloseModalGrupo) btnCloseModalGrupo.addEventListener('click', cerrarModalGrupo);
+      if (btnCancelModalGrupo) btnCancelModalGrupo.addEventListener('click', cerrarModalGrupo);
+
+      if (formNuevoGrupo) {
+        formNuevoGrupo.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const nombre = document.getElementById('grupo-nombre').value.trim();
+          alert(`Grupo "${nombre}" creado exitosamente.`);
+          formNuevoGrupo.reset();
+          cerrarModalGrupo();
         });
       }
 
