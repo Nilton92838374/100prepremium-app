@@ -3,34 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>100prepremium v2.2.9 - Suite Antidetección Profesional</title>
+  <title>100prepremium v2.3.1 - Suite Antidetección Borderless</title>
 
-  <!-- FLATPICKR CDN ESTILOS (TEMA OSCURO PRO) -->
+  <!-- FUENTE INTER Y FLATPICKR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <style>
     :root {
-      --bg-main: #0a0a0a;
-      --panel-bg: #1e1e1e;
-      --border-sub: #2d2d2d;
-      --primary-btn: #0062ff;
-      --primary-hover: #0052cc;
-      --highlight: #0062ff;
-      --text-main: #ffffff;
-      --text-muted: #a0a0a0;
-      --status-open: #00c853;
-      --status-closed: #ff5252;
-      --error-color: #ff5252;
-      --warning: #e0af68;
+      --bg-main: #121212;
+      --panel-bg: #1a1a1a;
+      --border-sub: #2a2a2a;
+      --primary-btn: #2d2d2d;
+      --primary-hover: #374151;
+      --highlight: #e5e5e5;
+      --text-main: #e5e5e5;
+      --text-muted: #a3a3a3;
+      --status-open: #a3a3a3;
+      --status-closed: #6b7280;
+      --error-color: #ef4444;
+      --warning: #f59e0b;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      transition: background 0.1s ease, color 0.1s ease !important; /* CERO ANIMACIONES LENTAS */
+      border-radius: 0 !important; /* DISEÑO BORDERLESS PLANO */
     }
 
     body {
@@ -224,8 +229,8 @@
     }
 
     sidebar {
-      width: 240px;
-      background-color: #070D1E;
+      width: 250px;
+      background-color: #121212;
       border-right: 1px solid var(--border-sub);
       display: flex;
       flex-direction: column;
@@ -243,19 +248,19 @@
     .brand-icon {
       width: 36px;
       height: 36px;
-      background: var(--primary-btn);
+      background: #2563eb;
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--bg-main);
+      color: #ffffff;
       font-weight: 900;
     }
 
     .brand-text h2 {
       font-size: 1.05rem;
       font-weight: 800;
-      color: var(--highlight);
+      color: #ffffff;
     }
 
     .brand-text p {
@@ -266,7 +271,7 @@
     .nav-menu {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
     .nav-item {
@@ -274,22 +279,22 @@
       align-items: center;
       gap: 10px;
       padding: 10px 14px;
-      border-radius: 6px;
+      border-radius: 4px;
       color: var(--text-muted);
       font-size: 0.88rem;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
     }
 
-    .nav-item:hover {
-      background-color: rgba(91, 192, 190, 0.08);
-      color: var(--highlight);
-    }
-
+    .nav-item:hover,
     .nav-item.active {
-      background: rgba(91, 192, 190, 0.18);
-      color: var(--highlight);
-      border: 1px solid var(--primary-btn);
+      background-color: #1e1e1e !important;
+      color: #2563eb !important;
+      font-weight: 700;
+      border: none !important;
     }
 
     .sidebar-footer {
@@ -840,7 +845,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.2.9</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.3.1</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -900,6 +905,13 @@
           Perfiles
         </div>
 
+        <div class="nav-item admin-only" id="nav-grupos">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+          </svg>
+          Grupos de perfiles
+        </div>
+
         <div class="nav-item admin-only" id="nav-proxies">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
@@ -917,13 +929,6 @@
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
           Miembros
-        </div>
-
-        <div class="nav-item admin-only" id="nav-grupos">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-          </svg>
-          Grupos de miembros
         </div>
 
         <div class="nav-item admin-only" id="nav-registros">
@@ -952,7 +957,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.2.9</h1>
+          <h1 id="app-version-header">100prepremium v2.3.1</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1073,7 +1078,10 @@
           <div class="table-container">
             <div class="table-header-title">
               <h3>Gestión de Servidores Proxy</h3>
-              <button class="btn-create" style="background:#0062ff;">+ Añadir Proxy</button>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-create" style="background:#2d2d2d; color:#e5e5e5;">+ Añadir Proxy</button>
+                <button class="btn-create" id="btn-open-modal-import-proxies" style="background:#374151; color:#e5e5e5;">+ Importación Masiva</button>
+              </div>
             </div>
             <table class="profiles-table">
               <thead>
@@ -1130,30 +1138,37 @@
           </div>
         </div>
 
-        <!-- SECCIÓN GRUPOS -->
+        <!-- SECCIÓN GRUPOS DE PERFILES -->
         <div class="view-section admin-only" id="view-grupos">
           <div class="table-container">
             <div class="table-header-title">
-              <h3>Grupos de Miembros y Perfiles</h3>
-              <button class="btn-create" style="background:#0062ff;" id="btn-open-modal-grupo-tab">+ Nuevo Grupo</button>
+              <h3>Grupos de Perfiles</h3>
+              <button class="btn-create" style="background:#2563eb;" id="btn-open-modal-grupo-tab">+ Crear grupo</button>
             </div>
             <table class="profiles-table">
               <thead>
                 <tr>
                   <th>Nombre del Grupo</th>
-                  <th>Observación</th>
-                  <th>Perfiles Incluidos</th>
-                  <th>Miembros Asignados</th>
-                  <th>Operación</th>
+                  <th>Cantidad de Perfiles</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="grupos-tbody">
                 <tr>
                   <td class="col-name">Grupo General</td>
-                  <td>Grupo predeterminado de perfiles SaaS</td>
-                  <td>Todos los perfiles</td>
-                  <td>Todos los miembros</td>
-                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#fff;">Editar</button></td>
+                  <td><span class="badge-tag" style="background:#1e1e1e; color:#fff;">Todos</span></td>
+                  <td>
+                    <button class="btn-action-sm" style="background:#1e1e1e; color:#fff; border:1px solid #262626;">Editar</button>
+                    <button class="btn-action-sm" style="background:#1e1e1e; color:#ff5252; border:1px solid #262626;">Eliminar</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="col-name">Cuentas IA Pro</td>
+                  <td><span class="badge-tag" style="background:#1e1e1e; color:#2563eb;">5 Perfiles</span></td>
+                  <td>
+                    <button class="btn-action-sm" style="background:#1e1e1e; color:#fff; border:1px solid #262626;">Editar</button>
+                    <button class="btn-action-sm" style="background:#1e1e1e; color:#ff5252; border:1px solid #262626;">Eliminar</button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -1360,6 +1375,22 @@
         <div class="modal-actions" style="margin-top:10px;">
           <button type="button" class="btn-cancel" id="btn-cancel-modal-grupo">Cancelar</button>
           <button type="submit" class="btn-save" style="background:#0062ff;">Guardar Grupo</button>
+        </div>
+  <!-- MODAL IMPORTACIÓN MASIVA DE PROXIES -->
+  <div class="modal-backdrop" id="modal-import-proxies">
+    <div class="modal-card-2col" style="width:500px;">
+      <div class="modal-title" style="font-weight:700; font-size:1.1rem; color:#e5e5e5; display:flex; justify-content:space-between; align-items:center;">
+        <span>Importación Masiva de Proxies</span>
+        <button class="btn-close-modal" id="btn-close-modal-import-proxies" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+      <form id="form-import-proxies" style="padding:16px 0 0 0; display:flex; flex-direction:column; gap:14px;">
+        <div class="form-control-group">
+          <label style="color:#a3a3a3; font-size:0.8rem;">Pega la lista de proxies (Un proxy por línea, formato IP:Puerto:Usuario:Pass o IP:Puerto)</label>
+          <textarea id="textarea-import-proxies" class="login-input" rows="8" placeholder="192.168.1.1:8080:user:pass&#10;10.0.0.2:3128" required style="font-family:Consolas, monospace; font-size:0.82rem; resize:vertical;"></textarea>
+        </div>
+        <div class="modal-actions" style="margin-top:10px;">
+          <button type="button" class="btn-cancel" id="btn-cancel-modal-import-proxies">Cancelar</button>
+          <button type="submit" class="btn-save" style="background:#374151; color:#e5e5e5;">Importar Proxies</button>
         </div>
       </form>
     </div>
@@ -1622,13 +1653,28 @@
       if (btnCloseModalGrupo) btnCloseModalGrupo.addEventListener('click', cerrarModalGrupo);
       if (btnCancelModalGrupo) btnCancelModalGrupo.addEventListener('click', cerrarModalGrupo);
 
-      if (formNuevoGrupo) {
-        formNuevoGrupo.addEventListener('submit', (e) => {
+      // MANEJADORES DEL MODAL IMPORTACIÓN MASIVA DE PROXIES
+      const modalImportProxies = document.getElementById('modal-import-proxies');
+      const btnOpenModalImportProxies = document.getElementById('btn-open-modal-import-proxies');
+      const btnCloseModalImportProxies = document.getElementById('btn-close-modal-import-proxies');
+      const btnCancelModalImportProxies = document.getElementById('btn-cancel-modal-import-proxies');
+      const formImportProxies = document.getElementById('form-import-proxies');
+
+      const abrirModalImportProxies = () => { if (modalImportProxies) modalImportProxies.style.display = 'flex'; };
+      const cerrarModalImportProxies = () => { if (modalImportProxies) modalImportProxies.style.display = 'none'; };
+
+      if (btnOpenModalImportProxies) btnOpenModalImportProxies.addEventListener('click', abrirModalImportProxies);
+      if (btnCloseModalImportProxies) btnCloseModalImportProxies.addEventListener('click', cerrarModalImportProxies);
+      if (btnCancelModalImportProxies) btnCancelModalImportProxies.addEventListener('click', cerrarModalImportProxies);
+
+      if (formImportProxies) {
+        formImportProxies.addEventListener('submit', (e) => {
           e.preventDefault();
-          const nombre = document.getElementById('grupo-nombre').value.trim();
-          alert(`Grupo "${nombre}" creado exitosamente.`);
-          formNuevoGrupo.reset();
-          cerrarModalGrupo();
+          const rawText = document.getElementById('textarea-import-proxies').value.trim();
+          const lineas = rawText.split('\n').filter(l => l.trim() !== '');
+          alert(`Se importaron ${lineas.length} proxies exitosamente.`);
+          formImportProxies.reset();
+          cerrarModalImportProxies();
         });
       }
 
@@ -1701,25 +1747,26 @@
           const tr = document.createElement('tr');
           const proxyText = (p.proxyHost && p.proxyPort) ? `${p.proxyHost}:${p.proxyPort}` : (p.proxy || '');
           const proxyBadge = proxyText 
-            ? `<span class="badge-proxy">${proxyText}</span>` 
-            : `<span class="badge-tag">Local Directo</span>`;
+            ? `<span style="font-size:0.82rem; color:var(--text-muted);">${proxyText}</span>` 
+            : `<span style="font-size:0.82rem; color:var(--text-muted);">Directo</span>`;
 
-          const colorTagStyle = p.etiquetaColor 
-            ? `style="background:${p.etiquetaColor}22; color:${p.etiquetaColor}; border:1px solid ${p.etiquetaColor}66;"` 
-            : '';
+          const estadoText = p.vencido 
+            ? `<span style="color:#6b7280; font-size:0.82rem; font-weight:500;">Vencido</span>` 
+            : (p.enRevision ? `<span style="color:#f59e0b; font-size:0.82rem; font-weight:500;">Revisión</span>` : `<span style="color:#a3a3a3; font-size:0.82rem; font-weight:500;">Activo</span>`);
 
           tr.innerHTML = `
-            <td class="col-id">${p.id}</td>
-            <td class="col-name">${p.nombre} ${p.notas ? `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">${p.notas}</div>` : ''}</td>
-            <td><span class="badge-tag" style="background:#111A33; color:var(--text-muted);">${p.categoria || 'General'}</span></td>
-            <td><span class="badge-tag" ${colorTagStyle}>${p.etiqueta}</span></td>
+            <td class="col-name" style="font-weight:600; color:var(--text-main);">${p.nombre}</td>
+            <td><span style="font-size:0.82rem; color:var(--text-muted);">${p.notas || 'Sin observaciones'}</span></td>
+            <td><span style="font-size:0.82rem; color:var(--text-muted);">${p.categoria || 'General'}</span></td>
+            <td><span style="font-size:0.82rem; color:var(--text-main);">${p.etiqueta || 'Default'}</span></td>
             <td>${proxyBadge}</td>
+            <td>${estadoText}</td>
             <td>
-              <div class="action-buttons-cell">
-                <button class="btn-toggle-profile" data-id="${p.id}" data-estado="cerrado">Abrir</button>
-                <button class="btn-action-sm btn-clone-profile admin-only" data-id="${p.id}">Clonar</button>
-                <button class="btn-action-sm btn-export-profile admin-only" data-id="${p.id}">Exportar</button>
-                <button class="btn-delete btn-delete-profile admin-only" data-id="${p.id}">Eliminar</button>
+              <div class="action-buttons-cell" style="display:flex; gap:8px; align-items:center;">
+                <button class="btn-toggle-profile" data-id="${p.id}" data-estado="cerrado" style="background:#2d2d2d; color:#e5e5e5; border:none; padding:4px 12px; font-size:0.8rem; cursor:pointer;">Abrir</button>
+                <button class="btn-action-sm btn-clone-profile admin-only" data-id="${p.id}" style="background:transparent; color:#a3a3a3; border:none; font-size:0.8rem; cursor:pointer;">Clonar</button>
+                <button class="btn-action-sm btn-export-profile admin-only" data-id="${p.id}" style="background:transparent; color:#a3a3a3; border:none; font-size:0.8rem; cursor:pointer;">Exportar</button>
+                <button class="btn-delete btn-delete-profile admin-only" data-id="${p.id}" style="background:transparent; color:#ef4444; border:none; font-size:0.8rem; cursor:pointer;">Eliminar</button>
               </div>
             </td>
           `;
