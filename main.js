@@ -756,6 +756,25 @@ app.whenReady().then(() => {
     autoUpdater.quitAndInstall();
   });
 
+  // Listener para búsqueda manual de actualizaciones desde el frontend
+  ipcMain.on('check-for-updates-manual', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-status', {
+        status: 'checking',
+        message: 'Buscando actualizaciones...'
+      });
+    }
+    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+      console.error('[AUTO-UPDATER ERROR]', err);
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('update-status', {
+          status: 'error',
+          message: 'Error al buscar actualizaciones.'
+        });
+      }
+    });
+  });
+
   // Configuración de actualizaciones silenciosas en segundo plano
   autoUpdater.logger = log;
   autoUpdater.logger.transports.file.level = 'info';
@@ -764,8 +783,16 @@ app.whenReady().then(() => {
   autoUpdater.checkForUpdatesAndNotify();
 
   // Eventos de consola y notificaciones IPC al frontend
+  autoUpdater.on('checking-for-update', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-status', {
+        status: 'checking',
+        message: 'Buscando actualizaciones...'
+      });
+    }
+  });
+
   autoUpdater.on('update-available', () => {
-    console.log('Actualización detectada. Descargando en segundo plano...');
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-status', {
         status: 'downloading',
@@ -774,12 +801,30 @@ app.whenReady().then(() => {
     }
   });
 
+  autoUpdater.on('update-not-available', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-status', {
+        status: 'up-to-date',
+        message: `Tu aplicación está actualizada (v${app.getVersion()}).`
+      });
+    }
+  });
+
   autoUpdater.on('update-downloaded', () => {
-    console.log('Descarga terminada. Se instalará al cerrar la app.');
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-status', {
         status: 'ready',
         message: 'Actualización lista. Cierra y abre la app.'
+      });
+    }
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.error('[AUTO-UPDATER ERROR]', err);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-status', {
+        status: 'error',
+        message: 'No se pudo comprobar actualizaciones.'
       });
     }
   });

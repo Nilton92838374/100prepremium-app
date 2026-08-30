@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('api', {
   logout: () => ipcRenderer.invoke('logout'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   reiniciarApp: () => ipcRenderer.invoke('reiniciar-app'),
+  checkForUpdates: () => ipcRenderer.send('check-for-updates-manual'),
   onPerfilActualizado: (callback) => ipcRenderer.on('perfil-actualizado', (_event, data) => callback(data)),
   onLogMessage: (callback) => ipcRenderer.on('log-message', (_event, data) => callback(data)),
   onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_event, data) => callback(data))

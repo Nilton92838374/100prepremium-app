@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>100prepremium v2.0 - Antidetect Suite</title>
+  <title>100prepremium v2.2.3 - Antidetect Suite</title>
 
   <!-- FLATPICKR CDN ESTILOS (TEMA OSCURO PRO) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -12,16 +12,16 @@
 
   <style>
     :root {
-      --bg-main: #0B132B;
-      --panel-bg: #1C2541;
-      --border-sub: #3A506B;
-      --primary-btn: #5BC0BE;
-      --primary-hover: #48a7a5;
-      --highlight: #6FFFE9;
-      --text-main: #E0FBFC;
-      --text-muted: #8D99AE;
-      --error-color: #f7768e;
-      --warning: #e0af68;
+      --bg-main: #040812;
+      --panel-bg: #0C1425;
+      --border-sub: #1A2844;
+      --primary-btn: #00E5FF;
+      --primary-hover: #00B4D8;
+      --highlight: #00FFCC;
+      --text-main: #F0F6FC;
+      --text-muted: #8494A5;
+      --error-color: #FF3366;
+      --warning: #FFC107;
     }
 
     * {
@@ -120,6 +120,9 @@
       justify-content: center;
       align-items: center;
       padding: 60px;
+      position: relative;
+      z-index: 250;
+      pointer-events: auto !important;
     }
 
     .login-card {
@@ -128,6 +131,9 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      position: relative;
+      z-index: 260;
+      pointer-events: auto !important;
     }
 
     .login-card-title h2 {
@@ -170,6 +176,11 @@
       color: #fff;
       font-size: 0.9rem;
       outline: none;
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      pointer-events: auto !important;
+      position: relative;
+      z-index: 270;
     }
 
     .login-input:focus {
@@ -827,7 +838,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.0</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.2.4</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -861,6 +872,7 @@
           </div>
 
           <button type="submit" class="btn-login-submit">Acceder al Panel</button>
+          <button type="button" class="btn-action-sm" id="btn-login-check-updates" style="width:100%; margin-top:8px; background: transparent; color: var(--text-muted); border: 1px solid var(--border-sub); padding: 8px;">Buscar Actualizaciones 🔄</button>
         </form>
       </div>
     </div>
@@ -928,7 +940,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.0</h1>
+          <h1 id="app-version-header">100prepremium v2.2.4</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -937,6 +949,7 @@
             <span id="update-text">Descargando actualización...</span>
             <button id="btn-restart-app" style="display:none; background:var(--primary-btn); color:var(--bg-main); border:none; padding:3px 10px; border-radius:4px; font-size:0.75rem; font-weight:800; cursor:pointer;">Reiniciar Ahora</button>
           </div>
+          <button class="btn-action-sm" id="btn-check-updates-manual" style="background: rgba(0, 229, 255, 0.12); color: var(--primary-btn); border: 1px solid rgba(0, 229, 255, 0.3); font-weight:700;">Buscar Actualizaciones 🔄</button>
           <div class="badge-status">
             <div class="status-dot"></div>
             <span id="header-user-status">Licencia SaaS Activa</span>
@@ -1276,6 +1289,15 @@
       let currentUserRole = 'superadmin';
       let currentUserAssignedProfiles = [];
 
+      // Desbloqueo y auto-focus automático del login
+      const emailInput = document.getElementById('login-email');
+      const passInput = document.getElementById('login-pass');
+      if (emailInput) {
+        emailInput.disabled = false;
+        setTimeout(() => emailInput.focus(), 100);
+      }
+      if (passInput) passInput.disabled = false;
+
       // Cargar versión dinámica de la app desde main.js
       if (window.api && window.api.getAppVersion) {
         try {
@@ -1287,6 +1309,25 @@
         } catch (vErr) {}
       }
 
+      // Función de disparo para búsqueda manual de actualizaciones
+      const ejecutarBusquedaActualizacion = () => {
+        const banner = document.getElementById('update-banner');
+        const text = document.getElementById('update-text');
+        if (banner && text) {
+          banner.style.display = 'flex';
+          text.textContent = 'Buscando actualizaciones...';
+        }
+        if (window.api && window.api.checkForUpdates) {
+          window.api.checkForUpdates();
+        }
+      };
+
+      const btnCheckManual = document.getElementById('btn-check-updates-manual');
+      if (btnCheckManual) btnCheckManual.addEventListener('click', ejecutarBusquedaActualizacion);
+
+      const btnLoginCheck = document.getElementById('btn-login-check-updates');
+      if (btnLoginCheck) btnLoginCheck.addEventListener('click', ejecutarBusquedaActualizacion);
+
       // Escuchar estado del actualizador silencioso
       if (window.api && window.api.onUpdateStatus) {
         window.api.onUpdateStatus((data) => {
@@ -1297,7 +1338,7 @@
             banner.style.display = 'flex';
             text.textContent = data.message;
             if (data.status === 'ready') {
-              banner.style.borderColor = '#6FFFE9';
+              banner.style.borderColor = '#00FFCC';
               if (btnRestart) {
                 btnRestart.style.display = 'inline-block';
                 btnRestart.onclick = async () => {
@@ -1306,6 +1347,12 @@
                   }
                 };
               }
+            } else if (data.status === 'up-to-date') {
+              setTimeout(() => {
+                if (banner.style.display === 'flex' && text.textContent.includes('actualizada')) {
+                  banner.style.display = 'none';
+                }
+              }, 4000);
             }
           }
         });
