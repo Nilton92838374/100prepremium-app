@@ -364,15 +364,48 @@ app.whenReady().then(() => {
   });
 
   // ---------------------------------------------------------
-  // HANDLERS IPC DE PERFILES
+  // HANDLERS IPC DE PERFILES Y USUARIOS CLOUD
   // ---------------------------------------------------------
-  ipcMain.handle('obtener-perfiles', async () => cargarPerfiles());
+  ipcMain.handle('obtener-perfiles', async (_event, userContext) => {
+    if (supabase) {
+      try {
+        let query = supabase.from('perfiles').select('*');
+        if (userContext && userContext.role === 'cliente' && userContext.userId) {
+          query = query.eq('asignado_a', userContext.userId);
+        }
+        const { data, error } = await query;
+        if (!error && data) {
+          const perfilesCloud = data.map(p => ({
+            id: p.id.toString(),
+            nombre: p.nombre,
+            categoria: p.categoria || 'General',
+            etiqueta: p.etiqueta || 'GENERAL',
+            etiquetaColor: p.etiqueta_color || p.etiquetaColor || '#5BC0BE',
+            urlAviso: p.url_aviso || p.urlAviso || '',
+            proxy: p.proxy || (p.proxy_host && p.proxy_port ? `${p.proxy_host}:${p.proxy_port}` : ''),
+            proxyHost: p.proxy_host || p.proxyHost || '',
+            proxyPort: p.proxy_port || p.proxyPort || '',
+            proxyUser: p.proxy_user || p.proxyUser || '',
+            proxyPass: p.proxy_pass || p.proxyPass || '',
+            osTarget: p.os_target || p.osTarget || 'Aleatorio',
+            userAgent: p.user_agent || p.userAgent || '',
+            cookie: typeof p.cookies_data === 'string' ? p.cookies_data : JSON.stringify(p.cookies_data || []),
+            asignadoA: p.asignado_a || null,
+            notas: p.notas || ''
+          }));
+          guardarPerfiles(perfilesCloud);
+          return perfilesCloud;
+        }
+      } catch (sbErr) {
+        console.warn('[SUPABASE FETCH PERFILES WARNING]', sbErr.message);
+      }
+    }
+    return cargarPerfiles();
+  });
 
   ipcMain.handle('crear-perfil', async (_event, nuevoPerfilData) => {
     try {
-      const perfiles = cargarPerfiles();
       const nuevoId = (Date.now() % 100000).toString().padStart(4, '0');
-      
       const nuevoPerfil = {
         id: nuevoId,
         nombre: nuevoPerfilData.nombre || `Perfil ${nuevoId}`,
@@ -388,47 +421,140 @@ app.whenReady().then(() => {
         osTarget: nuevoPerfilData.osTarget || 'Aleatorio',
         userAgent: nuevoPerfilData.userAgent || '',
         cookie: nuevoPerfilData.cookie ? nuevoPerfilData.cookie.trim() : '',
-        syncStatus: 'local',
-        cloudId: null
+        asignadoA: nuevoPerfilData.asignadoA || null,
+        notas: nuevoPerfilData.notas || ''
       };
 
+      if (supabase) {
+        try {
+          await supabase.from('perfiles').insert([{
+            id: nuevoPerfil.id,
+            nombre: nuevoPerfil.nombre,
+            categoria: nuevoPerfil.categoria,
+            etiqueta: nuevoPerfil.etiqueta,
+            etiqueta_color: nuevoPerfil.etiquetaColor,
+            url_aviso: nuevoPerfil.urlAviso,
+            proxy_host: nuevoPerfil.proxyHost,
+            proxy_port: nuevoPerfil.proxyPort,
+            proxy_user: nuevoPerfil.proxyUser,
+            proxy_pass: nuevoPerfil.proxyPass,
+            os_target: nuevoPerfil.osTarget,
+            user_agent: nuevoPerfil.userAgent,
+            cookies_data: nuevoPerfil.cookie ? JSON.parse(nuevoPerfil.cookie) : [],
+            asignado_a: nuevoPerfil.asignadoA,
+            notas: nuevoPerfil.notas
+          }]);
+        } catch (sbErr) {}
+      }
+
+      const perfiles = cargarPerfiles();
       perfiles.push(nuevoPerfil);
       guardarPerfiles(perfiles);
-      console.log(`[CRUD PERFILES] Perfil ${nuevoId} registrado.`);
       return { success: true, perfiles: perfiles };
     } catch (err) {
-      console.error('[CRUD PERFILES ERROR]', err);
       return { success: false, message: err.message };
     }
   });
 
-  ipcMain.handle('clonar-perfil', async (_event, idOriginal) => {
+  ipcMain.handle('actualizar-perfil', async (_event, perfilData) => {
     try {
       const perfiles = cargarPerfiles();
-      const original = perfiles.find(p => p.id === idOriginal.toString());
-      if (!original) {
-        return { success: false, message: 'Perfil original no encontrado.' };
+      const idx = perfiles.findIndex(p => p.id === perfilData.id.toString());
+      if (idx !== -1) {
+        perfiles[idx] = Object.assign({}, perfiles[idx], perfilData);
+        guardarPerfiles(perfiles);
       }
 
-      const nuevoId = (Date.now() % 100000).toString().padStart(4, '0');
-      const copiaPerfil = Object.assign({}, original, {
-        id: nuevoId,
-        nombre: `${original.nombre} (Copia)`,
-        syncStatus: 'local',
-        cloudId: null
-      });
-
-      perfiles.push(copiaPerfil);
-      guardarPerfiles(perfiles);
-
-      const profilePath = getProfileDirPath(nuevoId);
-
-      console.log(`[CLONAR PERFIL] Perfil ${idOriginal} clonado a ID ${nuevoId} en AppData: ${profilePath}`);
-      return { success: true, perfiles: perfiles };
+      if (supabase) {
+        try {
+          await supabase.from('perfiles').update({
+            nombre: perfilData.nombre,
+            categoria: perfilData.categoria,
+            etiqueta: perfilData.etiqueta,
+            etiqueta_color: perfilData.etiquetaColor,
+            url_aviso: perfilData.urlAviso,
+            proxy_host: perfilData.proxyHost,
+            proxy_port: perfilData.proxyPort,
+            proxy_user: perfilData.proxyUser,
+            proxy_pass: perfilData.proxyPass,
+            os_target: perfilData.osTarget,
+            user_agent: perfilData.userAgent,
+            asignado_a: perfilData.asignadoA,
+            notas: perfilData.notas
+          }).eq('id', perfilData.id.toString());
+        } catch (sbErr) {}
+      }
+      return { success: true };
     } catch (err) {
-      console.error('[CLONAR PERFIL ERROR]', err);
       return { success: false, message: err.message };
     }
+  });
+
+  ipcMain.handle('crear-usuario-admin', async (_event, userData) => {
+    const { email, password, rol } = userData || {};
+    if (!email || !password || password.length < 6) {
+      return { success: false, mensaje: 'Email y contraseña (mínimo 6 caracteres) son requeridos.' };
+    }
+
+    if (supabase) {
+      try {
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: password.trim()
+        });
+
+        if (authErr) return { success: false, mensaje: authErr.message };
+
+        if (authData && authData.user) {
+          await supabase.from('usuarios_roles').insert([{
+            user_id: authData.user.id,
+            email: email.trim(),
+            usuario: email.split('@')[0],
+            rol: rol || 'cliente'
+          }]);
+
+          await supabase.from('clientes').insert([{
+            user_id: authData.user.id,
+            usuario: email.split('@')[0],
+            fecha_inicio: new Date().toISOString()
+          }]);
+
+          return { success: true, usuario: authData.user, mensaje: 'Usuario registrado exitosamente en Supabase Cloud.' };
+        }
+      } catch (err) {
+        return { success: false, mensaje: err.message };
+      }
+    }
+
+    const clientes = cargarClientes();
+    const nuevoId = 'c' + (Date.now() % 10000).toString();
+    const usuarioVal = email.split('@')[0];
+    clientes.push({
+      id: nuevoId,
+      usuario: usuarioVal,
+      password: password,
+      nombre: usuarioVal,
+      fechaInicio: new Date().toISOString(),
+      perfilesAsignados: []
+    });
+    guardarClientes(clientes);
+    return { success: true, mensaje: 'Usuario registrado localmente.' };
+  });
+
+  ipcMain.handle('obtener-usuarios', async () => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('usuarios_roles').select('*');
+        if (!error && data) return data;
+      } catch (err) {}
+    }
+    const clientes = cargarClientes();
+    return clientes.map(c => ({
+      user_id: c.id,
+      email: `${c.usuario}@100prepremium.local`,
+      usuario: c.usuario,
+      rol: 'cliente'
+    }));
   });
 
   ipcMain.handle('exportar-perfil', async (_event, id) => {

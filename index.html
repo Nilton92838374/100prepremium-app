@@ -906,6 +906,15 @@
           Clientes y Licencias
         </div>
 
+        <div class="nav-item admin-only" id="nav-usuarios">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <polyline points="16 11 18 13 22 9"/>
+          </svg>
+          Gestión de Usuarios
+        </div>
+
         <div class="nav-item admin-only" id="nav-avisos">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -967,6 +976,10 @@
               <button class="btn-create admin-only" id="btn-open-modal-perfil">
                 + Nuevo Perfil
               </button>
+            </div>
+
+            <div style="padding: 10px 16px; background: rgba(26, 40, 68, 0.4); border-bottom: 1px solid var(--border-sub); display: flex; gap: 10px; align-items: center;">
+              <input type="text" id="search-perfiles-input" placeholder="🔍 Buscar por nombre, etiqueta o categoría..." style="flex:1; background: #040812; border:1px solid var(--border-sub); color:#fff; padding:8px 12px; border-radius:6px; outline:none; font-size:0.88rem;">
             </div>
 
             <table class="profiles-table">
@@ -1054,8 +1067,56 @@
               <button class="btn-action-sm" id="btn-clear-cmd">Limpiar Consola</button>
             </div>
             <div id="cmd-console" style="background:#000000; color:#00FF00; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; padding:16px; min-height:420px; max-height:550px; overflow-y:auto; border-radius:6px; border:1px solid var(--border-sub); line-height:1.4;">
-              <div style="color:#6FFFE9; margin-bottom:8px;">[SYSTEM] Terminal CMD 100prepremium v2.0 iniciada. Escuchando logs en tiempo real...</div>
+              <div style="color:#6FFFE9; margin-bottom:8px;">[SYSTEM] Terminal CMD 100prepremium v2.5 iniciada. Escuchando logs en tiempo real...</div>
             </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 6: GESTIÓN DE USUARIOS CLOUD -->
+        <div class="view-section admin-only" id="view-usuarios">
+          <div class="table-container" style="margin-bottom: 20px;">
+            <div class="table-header-title">
+              <h3>Crear Nuevo Usuario / Rol (Supabase Cloud Auth)</h3>
+            </div>
+            <form id="form-crear-usuario-cloud" style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 220px;">
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Email del Usuario</label>
+                  <input type="email" id="user-email-input" class="login-input" placeholder="cliente@ejemplo.com" required style="width: 100%; margin-top: 4px;">
+                </div>
+                <div style="flex: 1; min-width: 220px;">
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Contraseña (Mínimo 6 caracteres)</label>
+                  <input type="password" id="user-pass-input" class="login-input" placeholder="••••••••" minlength="6" required style="width: 100%; margin-top: 4px;">
+                </div>
+                <div style="flex: 1; min-width: 180px;">
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted);">Rol de Cuenta</label>
+                  <select id="user-rol-select" class="login-input" style="width: 100%; margin-top: 4px; background: #111A33; color: #fff;">
+                    <option value="cliente">Cliente (Modo Lectura / Asignado)</option>
+                    <option value="admin">Administrador (Acceso Total)</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn-create" style="align-self: flex-start; padding: 10px 20px;">Registrar Usuario en Supabase</button>
+            </form>
+          </div>
+
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Usuarios Registrados y Roles</h3>
+            </div>
+            <table class="profiles-table">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Email / Cuenta</th>
+                  <th>Usuario</th>
+                  <th>Rol Asignado</th>
+                </tr>
+              </thead>
+              <tbody id="usuarios-tbody">
+                <!-- Carga dinámica de usuarios -->
+              </tbody>
+            </table>
           </div>
         </div>
       </main>
@@ -1150,16 +1211,13 @@
                     <label>Puerto</label>
                     <input type="text" id="prof-proxy-port" class="login-input" placeholder="8080">
                   </div>
-                </div>
-
-                <div class="proxy-inputs-grid">
                   <div class="form-control-group">
-                    <label>Usuario (Auth)</label>
-                    <input type="text" id="prof-proxy-user" class="login-input" placeholder="Opcional">
+                    <label>Usuario Proxy</label>
+                    <input type="text" id="prof-proxy-user" class="login-input" placeholder="usr">
                   </div>
                   <div class="form-control-group">
-                    <label>Contraseña (Auth)</label>
-                    <input type="password" id="prof-proxy-pass" class="login-input" placeholder="Opcional">
+                    <label>Contraseña Proxy</label>
+                    <input type="password" id="prof-proxy-pass" class="login-input" placeholder="pass">
                   </div>
                 </div>
 
@@ -1170,15 +1228,27 @@
               </div>
             </div>
 
-            <div>
-              <div class="section-title">Captura Automática de Sesión</div>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <button type="button" class="btn-action-sm" id="btn-capture-session" style="padding:7px 12px;">
-                  Capturar Sesión (Abrir Navegador)
-                </button>
-                <span style="font-size:0.75rem; color:var(--text-muted);" id="cookie-status-badge">Sin sesión</span>
+            <!-- ORGANIZACIÓN SEO & ASIGNACIÓN A CLIENTE -->
+            <div style="margin-top: 14px; border-top: 1px solid var(--border-sub); padding-top: 10px;">
+              <div class="section-title">Organización Avanzada (SEO & Asignación)</div>
+              
+              <div class="form-control-group" style="margin-top:6px;">
+                <label for="prof-user-agent-custom">User-Agent Personalizado (Opcional)</label>
+                <input type="text" id="prof-user-agent-custom" class="login-input" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64)...">
               </div>
-              <input type="hidden" id="prof-cookie-hidden" value="">
+
+              <div class="form-control-group" style="margin-top:6px;">
+                <label for="prof-asignado-cliente">Asignar Perfil a Cliente Específico</label>
+                <select id="prof-asignado-cliente" class="login-input" style="background:#111A33; color:#fff;">
+                  <option value="">Sin Asignar (Todos los Administradores)</option>
+                  <!-- Opciones cargadas dinámicamente -->
+                </select>
+              </div>
+
+              <div class="form-control-group" style="margin-top:6px;">
+                <label for="prof-notas">Notas / Etiquetas SEO de Referencia</label>
+                <textarea id="prof-notas" class="login-input" rows="2" placeholder="Notas internas para el equipo o palabras clave..." style="resize:vertical;"></textarea>
+              </div>
             </div>
           </div>
 
@@ -1431,18 +1501,20 @@
       const navAvisos = document.getElementById('nav-avisos');
       const navConfiguracion = document.getElementById('nav-configuracion');
       const navCmd = document.getElementById('nav-cmd');
+      const navUsuarios = document.getElementById('nav-usuarios');
 
       const viewPerfiles = document.getElementById('view-perfiles');
       const viewClientes = document.getElementById('view-clientes');
       const viewAvisos = document.getElementById('view-avisos');
       const viewConfiguracion = document.getElementById('view-configuracion');
       const viewCmd = document.getElementById('view-cmd');
+      const viewUsuarios = document.getElementById('view-usuarios');
 
       const viewSubtitle = document.getElementById('view-subtitle');
 
       function cambiarPestana(navActive, viewActive, subtitle) {
-        [navPerfiles, navClientes, navAvisos, navConfiguracion, navCmd].forEach(n => { if (n) n.classList.remove('active'); });
-        [viewPerfiles, viewClientes, viewAvisos, viewConfiguracion, viewCmd].forEach(v => { if (v) v.classList.remove('active'); });
+        [navPerfiles, navClientes, navAvisos, navConfiguracion, navCmd, navUsuarios].forEach(n => { if (n) n.classList.remove('active'); });
+        [viewPerfiles, viewClientes, viewAvisos, viewConfiguracion, viewCmd, viewUsuarios].forEach(v => { if (v) v.classList.remove('active'); });
         if (navActive) navActive.classList.add('active');
         if (viewActive) viewActive.classList.add('active');
         viewSubtitle.textContent = subtitle;
@@ -1457,6 +1529,12 @@
       navConfiguracion.addEventListener('click', () => cambiarPestana(navConfiguracion, viewConfiguracion, 'Parámetros HWID y estado del motor Antidetect'));
       if (navCmd) {
         navCmd.addEventListener('click', () => cambiarPestana(navCmd, viewCmd, 'Consola de diagnóstico y registros del sistema en tiempo real'));
+      }
+      if (navUsuarios) {
+        navUsuarios.addEventListener('click', async () => {
+          cambiarPestana(navUsuarios, viewUsuarios, 'Gestión de cuentas de usuario y asignación de roles en la nube');
+          await renderizarTablaUsuarios();
+        });
       }
 
       const btnClearCmd = document.getElementById('btn-clear-cmd');
@@ -1476,8 +1554,10 @@
         await renderizarTablaPerfiles();
       }
 
-      // 3. TABLA DE PERFILES FILTRADA SEGÚN ROL
+      // 3. TABLA DE PERFILES FILTRADA SEGÚN ROL Y BÚSQUEDA SEO
       const profilesTbody = document.getElementById('profiles-tbody');
+      const searchPerfilesInput = document.getElementById('search-perfiles-input');
+      let allProfilesCache = [];
 
       function mostrarCargaTabla(tbody) {
         tbody.innerHTML = `
@@ -1494,19 +1574,35 @@
         if (!window.api || !window.api.obtenerPerfiles) return;
         mostrarCargaTabla(profilesTbody);
 
-        let perfiles = await window.api.obtenerPerfiles();
-        profilesTbody.innerHTML = '';
+        let perfiles = await window.api.obtenerPerfiles({ role: currentUserRole, userId: currentUserAssignedProfiles[0] || null });
+        allProfilesCache = perfiles || [];
+        filtrarYRenderizarPerfiles();
+      }
+
+      function filtrarYRenderizarPerfiles() {
+        const query = searchPerfilesInput ? searchPerfilesInput.value.toLowerCase().trim() : '';
+        let filtrados = allProfilesCache;
 
         if (currentUserRole === 'cliente') {
-          perfiles = perfiles.filter(p => currentUserAssignedProfiles.includes(p.id.toString()));
+          filtrados = filtrados.filter(p => currentUserAssignedProfiles.includes(p.id.toString()) || p.asignadoA === currentUserAssignedProfiles[0]);
         }
 
-        if (!perfiles || perfiles.length === 0) {
-          profilesTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#8D99AE; padding:20px;">No hay perfiles disponibles.</td></tr>`;
+        if (query) {
+          filtrados = filtrados.filter(p => 
+            (p.nombre && p.nombre.toLowerCase().includes(query)) ||
+            (p.etiqueta && p.etiqueta.toLowerCase().includes(query)) ||
+            (p.categoria && p.categoria.toLowerCase().includes(query)) ||
+            (p.notas && p.notas.toLowerCase().includes(query))
+          );
+        }
+
+        profilesTbody.innerHTML = '';
+        if (!filtrados || filtrados.length === 0) {
+          profilesTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#8D99AE; padding:20px;">No se encontraron perfiles.</td></tr>`;
           return;
         }
 
-        perfiles.forEach(p => {
+        filtrados.forEach(p => {
           const tr = document.createElement('tr');
           const proxyText = (p.proxyHost && p.proxyPort) ? `${p.proxyHost}:${p.proxyPort}` : (p.proxy || '');
           const proxyBadge = proxyText 
@@ -1519,7 +1615,7 @@
 
           tr.innerHTML = `
             <td class="col-id">${p.id}</td>
-            <td class="col-name">${p.nombre}</td>
+            <td class="col-name">${p.nombre} ${p.notas ? `<div style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">${p.notas}</div>` : ''}</td>
             <td><span class="badge-tag" style="background:#111A33; color:var(--text-muted);">${p.categoria || 'General'}</span></td>
             <td><span class="badge-tag" ${colorTagStyle}>${p.etiqueta}</span></td>
             <td>${proxyBadge}</td>
@@ -1537,6 +1633,59 @@
 
         aplicarControlDeRoles();
         asignarEventosPerfiles();
+      }
+
+      if (searchPerfilesInput) {
+        searchPerfilesInput.addEventListener('input', filtrarYRenderizarPerfiles);
+      }
+
+      // 4. GESTIÓN DE USUARIOS CLOUD
+      async function renderizarTablaUsuarios() {
+        const usuariosTbody = document.getElementById('usuarios-tbody');
+        if (!usuariosTbody || !window.api || !window.api.obtenerUsuarios) return;
+        mostrarCargaTabla(usuariosTbody);
+
+        const usuarios = await window.api.obtenerUsuarios();
+        usuariosTbody.innerHTML = '';
+
+        if (!usuarios || usuarios.length === 0) {
+          usuariosTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#8D99AE; padding:20px;">No hay usuarios registrados.</td></tr>`;
+          return;
+        }
+
+        usuarios.forEach(u => {
+          const tr = document.createElement('tr');
+          const rolBadge = u.rol === 'admin' || u.rol === 'superadmin'
+            ? `<span class="badge-tag" style="background:rgba(0,229,255,0.2); color:#00E5FF; border:1px solid #00E5FF;">${u.rol.toUpperCase()}</span>`
+            : `<span class="badge-tag" style="background:rgba(255,255,255,0.08); color:var(--text-muted);">${u.rol.toUpperCase()}</span>`;
+
+          tr.innerHTML = `
+            <td class="col-id">${(u.user_id || u.id || '').toString().slice(0, 8)}...</td>
+            <td class="col-name">${u.email || u.usuario}</td>
+            <td>${u.usuario}</td>
+            <td>${rolBadge}</td>
+          `;
+          usuariosTbody.appendChild(tr);
+        });
+      }
+
+      const formCrearUsuarioCloud = document.getElementById('form-crear-usuario-cloud');
+      if (formCrearUsuarioCloud) {
+        formCrearUsuarioCloud.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('user-email-input').value.trim();
+          const password = document.getElementById('user-pass-input').value.trim();
+          const rol = document.getElementById('user-rol-select').value;
+
+          if (window.api && window.api.crearUsuarioAdmin) {
+            const res = await window.api.crearUsuarioAdmin({ email, password, rol });
+            alert(res.mensaje || 'Resultado del registro.');
+            if (res && res.success) {
+              formCrearUsuarioCloud.reset();
+              await renderizarTablaUsuarios();
+            }
+          }
+        });
       }
 
       function asignarEventosPerfiles() {
@@ -1714,9 +1863,13 @@
         const user = document.getElementById('prof-proxy-user').value.trim();
         const pass = document.getElementById('prof-proxy-pass').value.trim();
         const cookie = document.getElementById('prof-cookie-hidden').value.trim();
+        
+        const userAgentCustom = document.getElementById('prof-user-agent-custom') ? document.getElementById('prof-user-agent-custom').value.trim() : '';
+        const asignadoA = document.getElementById('prof-asignado-cliente') ? document.getElementById('prof-asignado-cliente').value : null;
+        const notas = document.getElementById('prof-notas') ? document.getElementById('prof-notas').value.trim() : '';
 
         const proxyFull = (currentProxyMode === 'custom' && host && port) ? `${host}:${port}` : '';
-        const userAgentVal = osUserAgents[currentOsTarget] || '';
+        const userAgentVal = userAgentCustom || osUserAgents[currentOsTarget] || '';
 
         const res = await window.api.crearPerfil({
           nombre,
@@ -1731,12 +1884,16 @@
           proxyPass: pass,
           osTarget: currentOsTarget,
           userAgent: userAgentVal,
-          cookie
+          cookie: cookie,
+          asignadoA: asignadoA || null,
+          notas: notas
         });
 
         if (res && res.success) {
           cerrarModalPerfil();
           await renderizarTablaPerfiles();
+        } else {
+          alert('Error al crear perfil: ' + (res.message || 'Desconocido'));
         }
       });
 
