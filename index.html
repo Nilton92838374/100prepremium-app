@@ -827,7 +827,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium v2.0</h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--highlight);">v2.0</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -928,10 +928,15 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1>100prepremium v2.0</h1>
+          <h1 id="app-version-header">100prepremium v2.0</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
+          <!-- BANNER DINÁMICO DE ACTUALIZACIÓN DE SOFTWARE -->
+          <div id="update-banner" style="display:none; align-items:center; gap:8px; background:rgba(111, 255, 233, 0.12); color:var(--highlight); padding:5px 12px; border-radius:16px; font-size:0.78rem; font-weight:700; border:1px solid var(--primary-btn);">
+            <span id="update-text">Descargando actualización...</span>
+            <button id="btn-restart-app" style="display:none; background:var(--primary-btn); color:var(--bg-main); border:none; padding:3px 10px; border-radius:4px; font-size:0.75rem; font-weight:800; cursor:pointer;">Reiniciar Ahora</button>
+          </div>
           <div class="badge-status">
             <div class="status-dot"></div>
             <span id="header-user-status">Licencia SaaS Activa</span>
@@ -1270,6 +1275,41 @@
     document.addEventListener('DOMContentLoaded', async () => {
       let currentUserRole = 'superadmin';
       let currentUserAssignedProfiles = [];
+
+      // Cargar versión dinámica de la app desde main.js
+      if (window.api && window.api.getAppVersion) {
+        try {
+          const versionReal = await window.api.getAppVersion();
+          const headerTitle = document.getElementById('app-version-header');
+          if (headerTitle) headerTitle.textContent = `100prepremium v${versionReal}`;
+          const loginVersion = document.getElementById('login-brand-version');
+          if (loginVersion) loginVersion.textContent = `v${versionReal}`;
+        } catch (vErr) {}
+      }
+
+      // Escuchar estado del actualizador silencioso
+      if (window.api && window.api.onUpdateStatus) {
+        window.api.onUpdateStatus((data) => {
+          const banner = document.getElementById('update-banner');
+          const text = document.getElementById('update-text');
+          const btnRestart = document.getElementById('btn-restart-app');
+          if (banner && text) {
+            banner.style.display = 'flex';
+            text.textContent = data.message;
+            if (data.status === 'ready') {
+              banner.style.borderColor = '#6FFFE9';
+              if (btnRestart) {
+                btnRestart.style.display = 'inline-block';
+                btnRestart.onclick = async () => {
+                  if (window.api && window.api.reiniciarApp) {
+                    await window.api.reiniciarApp();
+                  }
+                };
+              }
+            }
+          }
+        });
+      }
 
       // 1. LÓGICA DE LOGIN CON CONTROL DE ROLES
       const loginView = document.getElementById('login-view');

@@ -20,6 +20,9 @@ contextBridge.exposeInMainWorld('api', {
   eliminarCliente: (idCliente) => ipcRenderer.invoke('eliminar-cliente', idCliente),
   desvincularHwidCliente: (idCliente) => ipcRenderer.invoke('desvincular-hwid-cliente', idCliente),
   logout: () => ipcRenderer.invoke('logout'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  reiniciarApp: () => ipcRenderer.invoke('reiniciar-app'),
   onPerfilActualizado: (callback) => ipcRenderer.on('perfil-actualizado', (_event, data) => callback(data)),
-  onLogMessage: (callback) => ipcRenderer.on('log-message', (_event, data) => callback(data))
+  onLogMessage: (callback) => ipcRenderer.on('log-message', (_event, data) => callback(data)),
+  onUpdateStatus: (callback) => ipcRenderer.on('update-status', (_event, data) => callback(data))
 });

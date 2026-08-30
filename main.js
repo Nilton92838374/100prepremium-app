@@ -750,6 +750,12 @@ app.whenReady().then(() => {
 
   createMainWindow();
 
+  // Configuración de versión IPC y reinicio
+  ipcMain.handle('get-app-version', () => app.getVersion());
+  ipcMain.handle('reiniciar-app', () => {
+    autoUpdater.quitAndInstall();
+  });
+
   // Configuración de actualizaciones silenciosas en segundo plano
   autoUpdater.logger = log;
   autoUpdater.logger.transports.file.level = 'info';
@@ -757,13 +763,25 @@ app.whenReady().then(() => {
   // Buscar actualizaciones sin avisar
   autoUpdater.checkForUpdatesAndNotify();
 
-  // Eventos de consola para monitoreo del desarrollador
+  // Eventos de consola y notificaciones IPC al frontend
   autoUpdater.on('update-available', () => {
     console.log('Actualización detectada. Descargando en segundo plano...');
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-status', {
+        status: 'downloading',
+        message: 'Descargando actualización...'
+      });
+    }
   });
 
   autoUpdater.on('update-downloaded', () => {
     console.log('Descarga terminada. Se instalará al cerrar la app.');
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-status', {
+        status: 'ready',
+        message: 'Actualización lista. Cierra y abre la app.'
+      });
+    }
   });
 
   app.on('activate', () => {
