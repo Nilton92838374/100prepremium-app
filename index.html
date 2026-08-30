@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>100prepremium v2.0 - Antidetect Suite</title>
+
+  <!-- FLATPICKR CDN ESTILOS (TEMA OSCURO PRO) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <style>
+    :root {
+      --bg-main: #0B132B;
+      --panel-bg: #1C2541;
+      --border-sub: #3A506B;
+      --primary-btn: #5BC0BE;
+      --primary-hover: #48a7a5;
+      --highlight: #6FFFE9;
+      --text-main: #E0FBFC;
+      --text-muted: #8D99AE;
+      --error-color: #f7768e;
+      --warning: #e0af68;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      height: 100vh;
+      width: 100vw;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* ---------------------------------------------------------
+       CLASE ADMIN-ONLY PARA SEPARACIÓN DE ROLES
+       --------------------------------------------------------- */
+    .admin-only {
+      display: none !important;
+    }
+
+    /* ---------------------------------------------------------
+       1. PANTALLA DE LOGIN PRIVADA (FLEX 50/50)
+       --------------------------------------------------------- */
+    #login-view {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--bg-main);
+      z-index: 200;
+    }
+
+    .login-left {
+      flex: 1;
+      background: #070D1E;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+      border-right: 1px solid var(--border-sub);
+    }
+
+    .login-left-brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .login-left-brand .icon {
+      width: 46px;
+      height: 46px;
+      background: var(--primary-btn);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg-main);
+      font-weight: 900;
+      font-size: 1.2rem;
+    }
+
+    .login-left-brand h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--highlight);
+    }
+
+    .login-left-headline {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .login-left-headline span {
+      color: var(--highlight);
+    }
+
+    .login-left-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .login-right {
+      flex: 1;
+      background-color: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .login-card-title h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .login-card-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-control-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .login-input {
+      background-color: #111A33;
+      border: 1px solid var(--border-sub);
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .login-input:focus {
+      border-color: var(--primary-btn);
+    }
+
+    .remember-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .btn-login-submit {
+      background: var(--primary-btn);
+      color: var(--bg-main);
+      border: none;
+      padding: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-login-submit:hover {
+      background: var(--highlight);
+    }
+
+    /* ---------------------------------------------------------
+       2. LAYOUT Y SIDEBAR CORPORATIVO
+       --------------------------------------------------------- */
+    #app-layout {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    sidebar {
+      width: 240px;
+      background-color: #070D1E;
+      border-right: 1px solid var(--border-sub);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 14px;
+      gap: 24px;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 6px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-btn);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bg-main);
+      font-weight: 900;
+    }
+
+    .brand-text h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--highlight);
+    }
+
+    .brand-text p {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(91, 192, 190, 0.08);
+      color: var(--highlight);
+    }
+
+    .nav-item.active {
+      background: rgba(91, 192, 190, 0.18);
+      color: var(--highlight);
+      border: 1px solid var(--primary-btn);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 10px;
+      background-color: #111A33;
+      border-radius: 6px;
+      border: 1px solid var(--border-sub);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hwid-badge {
+      font-family: monospace;
+      color: var(--highlight);
+      word-break: break-all;
+    }
+
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    header {
+      padding: 18px 28px;
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border-sub);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--highlight);
+    }
+
+    .header-title p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .badge-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(91, 192, 190, 0.12);
+      color: var(--highlight);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid rgba(91, 192, 190, 0.3);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--highlight);
+      border-radius: 50%;
+    }
+
+    main {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1150px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-section {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .view-section.active {
+      display: flex;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-sub);
+      border-radius: 6px;
+      padding: 16px 20px;
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-family: monospace;
+      font-size: 0.88rem;
+      color: var(--highlight);
+      background: #0B132B;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid var(--border-sub);
+    }
+
+    .card-info {
+      font-size: 0.82rem;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+
+    .dicloak-spinner {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid rgba(91, 192, 190, 0.2);
+      border-top: 3px solid var(--primary-btn);
+      animation: spin 0.8s linear infinite;
+      margin: 15px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .table-container {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-sub);
+      border-radius: 6px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .table-header-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .table-header-title h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-create {
+      background: var(--primary-btn);
+      color: var(--bg-main);
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-create:hover { background: var(--highlight); }
+
+    .profiles-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      font-size: 0.88rem;
+    }
+
+    .profiles-table th {
+      background-color: #0B132B;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.8px;
+      padding: 10px 12px;
+      text-align: left;
+      border: 1px solid var(--border-sub);
+    }
+
+    .profiles-table td {
+      padding: 10px 12px;
+      background-color: #0B132B;
+      color: var(--text-main);
+      vertical-align: middle;
+      border-top: 1px solid var(--border-sub);
+      border-bottom: 1px solid var(--border-sub);
+    }
+
+    .col-id { font-family: monospace; color: var(--text-muted); font-weight: 600; }
+    .col-name { font-weight: 600; color: #fff; }
+
+    .badge-tag {
+      background-color: rgba(58, 80, 107, 0.4);
+      color: var(--highlight);
+      border: 1px solid var(--border-sub);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-proxy {
+      color: var(--highlight);
+      background: rgba(91, 192, 190, 0.1);
+      border: 1px solid rgba(91, 192, 190, 0.3);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+    }
+
+    .badge-active {
+      color: var(--highlight);
+      background: rgba(111, 255, 233, 0.15);
+      border: 1px solid var(--highlight);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .badge-expired {
+      color: var(--error-color);
+      background: rgba(247, 118, 142, 0.12);
+      border: 1px solid rgba(247, 118, 142, 0.3);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+    }
+
+    .action-buttons-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-toggle-profile {
+      border: none;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-toggle-profile[data-estado="cerrado"],
+    .btn-toggle-profile:not([data-estado]) {
+      background: var(--primary-btn);
+      color: var(--bg-main);
+    }
+
+    .btn-toggle-profile[data-estado="abierto"] {
+      background: var(--error-color);
+      color: #fff;
+    }
+
+    .btn-action-sm {
+      background: rgba(58, 80, 107, 0.3);
+      color: var(--text-main);
+      border: 1px solid var(--border-sub);
+      padding: 5px 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-action-sm:hover { background: var(--primary-btn); color: var(--bg-main); }
+
+    .btn-delete {
+      background: rgba(247, 118, 142, 0.12);
+      color: var(--error-color);
+      border: 1px solid rgba(247, 118, 142, 0.3);
+      padding: 5px 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-delete:hover { background: var(--error-color); color: #fff; }
+
+    /* MODAL Y ELEMENTOS DE EDICIÓN DE PERFIL */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(7, 13, 30, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+    }
+
+    .modal-card-2col {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border-sub);
+      border-radius: 8px;
+      padding: 24px;
+      width: 900px;
+      max-width: 95vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-body-2col {
+      display: flex;
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    .modal-col-left {
+      flex: 7;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+      padding-right: 8px;
+      max-height: 65vh;
+    }
+
+    .modal-col-right {
+      flex: 3;
+      background-color: #0B132B;
+      border: 1px solid var(--border-sub);
+      border-radius: 6px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--highlight);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .os-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn-os {
+      flex: 1;
+      min-width: 80px;
+      background: #0B132B;
+      border: 1px solid var(--border-sub);
+      color: var(--text-muted);
+      padding: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-os.active {
+      background: rgba(91, 192, 190, 0.2);
+      color: var(--highlight);
+      border-color: var(--primary-btn);
+    }
+
+    .proxy-mode-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-proxy-mode {
+      flex: 1;
+      background: #0B132B;
+      border: 1px solid var(--border-sub);
+      color: var(--text-muted);
+      padding: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-proxy-mode.active {
+      background: rgba(91, 192, 190, 0.2);
+      color: var(--highlight);
+      border-color: var(--primary-btn);
+    }
+
+    .proxy-inputs-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 8px;
+    }
+
+    .summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .summary-value {
+      font-size: 0.82rem;
+      color: #fff;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .summary-ua-box {
+      font-family: monospace;
+      font-size: 0.7rem;
+      color: var(--highlight);
+      background: #070D1E;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-sub);
+      max-height: 75px;
+      overflow-y: auto;
+    }
+
+    .time-buttons-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn-quick-time {
+      background: #0B132B;
+      color: var(--text-muted);
+      border: 1px solid var(--border-sub);
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-quick-time:hover {
+      background: rgba(91, 192, 190, 0.2);
+      color: var(--highlight);
+      border-color: var(--primary-btn);
+    }
+
+    .perfiles-accordion {
+      background: #0B132B;
+      border: 1px solid var(--border-sub);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      padding: 10px 14px;
+      background: #111A33;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion-body {
+      display: none;
+      padding: 10px;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .accordion-body.open {
+      display: flex;
+    }
+
+    .search-input-inline {
+      background: #070D1E;
+      border: 1px solid var(--border-sub);
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: #fff;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-sub);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-save {
+      background: var(--primary-btn);
+      color: var(--bg-main);
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .btn-save:hover { background: var(--highlight); }
+  </style>
+</head>
+<body>
+
+  <!-- 1. PANTALLA DE LOGIN PRIVADA -->
+  <div id="login-view">
+    <div class="login-left">
+      <div class="login-left-brand">
+        <div class="icon">100</div>
+        <h1>100prepremium v2.0</h1>
+      </div>
+      <div class="login-left-headline">
+        Plataforma Antidetect para <span>gestión multicuentas</span>
+      </div>
+      <div class="login-left-desc">
+        Aislamiento absoluto de canvas, WebGL, cookies y perfiles Puppeteer con motor Chrome local y HWID.
+      </div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-card">
+        <div class="login-card-title">
+          <h2>Iniciar Sesión</h2>
+          <p>Ingresa tus credenciales autorizadas</p>
+        </div>
+
+        <form class="login-form" id="login-form">
+          <div class="form-control-group">
+            <label for="login-email">Usuario</label>
+            <input type="text" id="login-email" class="login-input" value="admin" placeholder="ej. admin" required>
+          </div>
+
+          <div class="form-control-group">
+            <label for="login-pass">Contraseña</label>
+            <input type="password" id="login-pass" class="login-input" value="1234" placeholder="••••••••" required>
+          </div>
+
+          <div class="remember-container">
+            <input type="checkbox" id="remember-me" checked>
+            <label for="remember-me">Recordar sesión</label>
+          </div>
+
+          <button type="submit" class="btn-login-submit">Acceder al Panel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. DASHBOARD CON SIDEBAR DINÁMICO SEGÚN ROL -->
+  <div id="app-layout">
+    <sidebar id="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">100</div>
+        <div class="brand-text">
+          <h2>100prepremium</h2>
+          <p id="user-role-badge">SaaS Suite v2.0</p>
+        </div>
+      </div>
+
+      <div class="nav-menu" id="nav-menu">
+        <div class="nav-item active" id="nav-perfiles">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+          </svg>
+          Gestión de Perfiles
+        </div>
+
+        <div class="nav-item admin-only" id="nav-clientes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+          </svg>
+          Clientes y Licencias
+        </div>
+
+        <div class="nav-item admin-only" id="nav-avisos">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Avisos del Sistema
+        </div>
+
+        <div class="nav-item admin-only" id="nav-configuracion">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          Configuración
+        </div>
+
+        <div class="nav-item admin-only" id="nav-cmd">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          Terminal CMD
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <span>HWID Local Vinculado:</span>
+        <span class="hwid-badge" id="hwid-sidebar">Cargando...</span>
+      </div>
+    </sidebar>
+
+    <div class="content-area">
+      <header>
+        <div class="header-title">
+          <h1>100prepremium v2.0</h1>
+          <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
+        </div>
+        <div class="badge-status">
+          <div class="status-dot"></div>
+          <span id="header-user-status">Licencia SaaS Activa</span>
+        </div>
+      </header>
+
+      <main>
+        <!-- SECCIÓN 1: PERFILES -->
+        <div class="view-section active" id="view-perfiles">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3 id="profiles-section-title">Perfiles Configurados</h3>
+              <button class="btn-create admin-only" id="btn-open-modal-perfil">
+                + Nuevo Perfil
+              </button>
+            </div>
+
+            <table class="profiles-table">
+              <thead>
+                <tr>
+                  <th>Número</th>
+                  <th>Nombre</th>
+                  <th>Categoría</th>
+                  <th>Etiqueta</th>
+                  <th>Estado / Proxy</th>
+                  <th>Operación</th>
+                </tr>
+              </thead>
+              <tbody id="profiles-tbody">
+                <!-- Carga dinámica -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: CLIENTES -->
+        <div class="view-section admin-only" id="view-clientes">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Clientes y Licencias HWID</h3>
+              <button class="btn-create" id="btn-open-modal-cliente">
+                + Nuevo Cliente
+              </button>
+            </div>
+
+            <table class="profiles-table">
+              <thead>
+                <tr>
+                  <th>ID Cliente</th>
+                  <th>Usuario</th>
+                  <th>Contraseña</th>
+                  <th>Vencimiento</th>
+                  <th>HWID Vinculado</th>
+                  <th>Perfiles</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="clientes-tbody">
+                <!-- Carga dinámica -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: AVISOS -->
+        <div class="view-section admin-only" id="view-avisos">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Avisos del Sistema 100prepremium v2.0</h3>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.6;">
+              <p style="margin-bottom:10px;">✓ Motor 100prepremium v2.0 con reconexión de sesión `--restore-last-session` activado.</p>
+              <p>✓ Detección inteligente de Google Chrome local enrutada dinámicamente.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: CONFIGURACIÓN -->
+        <div class="view-section admin-only" id="view-configuracion">
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-title">Identificador HWID Local</div>
+              <div class="card-value" id="hwid-display">Cargando HWID...</div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Motor Antidetect Activo</div>
+              <div class="card-info">
+                Stealth 2.5: Dual-OS User-Agent, Accept-Lang (`es-ES`), Local Chrome & Session Restoration.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 5: TERMINAL CMD -->
+        <div class="view-section admin-only" id="view-cmd">
+          <div class="table-container">
+            <div class="table-header-title">
+              <h3>Terminal de Registros del Sistema (CMD)</h3>
+              <button class="btn-action-sm" id="btn-clear-cmd">Limpiar Consola</button>
+            </div>
+            <div id="cmd-console" style="background:#000000; color:#00FF00; font-family:Consolas, Monaco, 'Courier New', monospace; font-size:0.82rem; padding:16px; min-height:420px; max-height:550px; overflow-y:auto; border-radius:6px; border:1px solid var(--border-sub); line-height:1.4;">
+              <div style="color:#6FFFE9; margin-bottom:8px;">[SYSTEM] Terminal CMD 100prepremium v2.0 iniciada. Escuchando logs en tiempo real...</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL DE CREACIÓN DE PERFIL CON CATEGORÍAS Y COLOR BADGES -->
+  <div class="modal-backdrop" id="modal-nuevo-perfil">
+    <div class="modal-card-2col">
+      <div class="modal-title" style="font-weight:700; font-size:1.1rem; color:var(--highlight); display:flex; justify-content:space-between;">
+        <span>Crear Perfil Antidetect</span>
+        <button class="btn-close-modal" id="btn-close-modal-perfil" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <form id="form-nuevo-perfil">
+        <div class="modal-body-2col">
+          <div class="modal-col-left">
+            <div class="form-control-group">
+              <label for="prof-nombre">Nombre del Perfil</label>
+              <input type="text" id="prof-nombre" class="login-input" placeholder="ej. CHATGPT PRO 2" required>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div class="form-control-group">
+                <label for="prof-categoria">Categoría / Grupo</label>
+                <input type="text" id="prof-categoria" class="login-input" placeholder="ej. Inteligencia Artificial">
+              </div>
+              <div class="form-control-group">
+                <label for="prof-etiqueta-color">Etiqueta Visual (Color)</label>
+                <select id="prof-etiqueta-color" class="login-input">
+                  <option value="#5BC0BE" selected>Turquesa Corporativo</option>
+                  <option value="#6FFFE9">Menta Neón</option>
+                  <option value="#7aa2f7">Azul Neón</option>
+                  <option value="#e0af68">Amarillo Oro</option>
+                  <option value="#f7768e">Rojo Carmín</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-control-group">
+              <label for="prof-etiqueta">Etiqueta Texto</label>
+              <input type="text" id="prof-etiqueta" class="login-input" placeholder="ej. IA MAXIMA" required>
+            </div>
+
+            <div class="form-control-group">
+              <label for="prof-url-aviso">Página de Aviso al Iniciar (Opcional)</label>
+              <input type="text" id="prof-url-aviso" class="login-input" placeholder="ej. https://checkip.com">
+            </div>
+
+            <div>
+              <div class="section-title">Huella Digital del Navegador</div>
+              <div class="form-control-group">
+                <label>Navegador Base</label>
+                <select class="login-input" disabled style="opacity:0.7;">
+                  <option selected>ChromeBrowser 142 (Motor Local)</option>
+                </select>
+              </div>
+
+              <div class="form-control-group" style="margin-top: 8px;">
+                <label>Sistema Operativo (User-Agent)</label>
+                <div class="os-btn-group">
+                  <button type="button" class="btn-os active" data-os="Aleatorio">Todos / Aleatorio</button>
+                  <button type="button" class="btn-os" data-os="Windows">Windows</button>
+                  <button type="button" class="btn-os" data-os="macOS">macOS</button>
+                  <button type="button" class="btn-os" data-os="Linux">Linux</button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title">Configuración de Proxy</div>
+              <div class="proxy-mode-group">
+                <button type="button" class="btn-proxy-mode active" id="btn-proxy-sin">Sin Proxy</button>
+                <button type="button" class="btn-proxy-mode" id="btn-proxy-custom">Personalizado</button>
+              </div>
+
+              <div id="proxy-custom-container" style="display:none; margin-top:10px; gap:8px; flex-direction:column;">
+                <div class="form-control-group">
+                  <label>Entrada Rápida (IP:Puerto:Usuario:Contraseña)</label>
+                  <div style="display:flex; gap:6px;">
+                    <input type="text" id="proxy-quick-parse" class="login-input" style="flex:1;" placeholder="123.45.67.89:8080:usr:pass">
+                    <button type="button" class="btn-action-sm" id="btn-parse-proxy">Analizar</button>
+                  </div>
+                </div>
+
+                <div class="proxy-inputs-grid">
+                  <div class="form-control-group">
+                    <label>IP / Host</label>
+                    <input type="text" id="prof-proxy-host" class="login-input" placeholder="123.45.67.89">
+                  </div>
+                  <div class="form-control-group">
+                    <label>Puerto</label>
+                    <input type="text" id="prof-proxy-port" class="login-input" placeholder="8080">
+                  </div>
+                </div>
+
+                <div class="proxy-inputs-grid">
+                  <div class="form-control-group">
+                    <label>Usuario (Auth)</label>
+                    <input type="text" id="prof-proxy-user" class="login-input" placeholder="Opcional">
+                  </div>
+                  <div class="form-control-group">
+                    <label>Contraseña (Auth)</label>
+                    <input type="password" id="prof-proxy-pass" class="login-input" placeholder="Opcional">
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                  <button type="button" class="btn-action-sm" id="btn-test-proxy">Probar Proxy</button>
+                  <div style="font-size:0.75rem;" id="proxy-status-msg"></div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title">Captura Automática de Sesión</div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" class="btn-action-sm" id="btn-capture-session" style="padding:7px 12px;">
+                  Capturar Sesión (Abrir Navegador)
+                </button>
+                <span style="font-size:0.75rem; color:var(--text-muted);" id="cookie-status-badge">Sin sesión</span>
+              </div>
+              <input type="hidden" id="prof-cookie-hidden" value="">
+            </div>
+          </div>
+
+          <div class="modal-col-right">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--highlight); border-bottom:1px solid var(--border-sub); padding-bottom:6px;">
+              Resumen del Perfil
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Motor Base:</span>
+              <span class="summary-value" style="color:var(--highlight);">Chrome Local 142</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">SO Seleccionado:</span>
+              <span class="summary-value" id="summary-os">Todos / Aleatorio</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Proxy Configurado:</span>
+              <span class="summary-value" id="summary-proxy">Sin Proxy (Directo)</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">Estado de Cookies:</span>
+              <span class="summary-value" id="summary-cookies" style="color:var(--text-muted);">Sin datos</span>
+            </div>
+
+            <div class="summary-item">
+              <span class="summary-label">User-Agent Generado:</span>
+              <div class="summary-ua-box" id="summary-ua-text">Aleatorio (Se asignará al iniciar)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel-modal-perfil">Cancelar</button>
+          <button type="submit" class="btn-save">Guardar Perfil</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CREACIÓN CLIENTE CON FECHA DE INICIO EDITABLE CON FLATPICKR -->
+  <div class="modal-backdrop" id="modal-nuevo-cliente">
+    <div class="modal-card-2col" style="width:500px;">
+      <div class="modal-title" style="font-weight:700; font-size:1.1rem; color:var(--highlight); display:flex; justify-content:space-between;">
+        <span>Registrar Nuevo Cliente</span>
+        <button class="btn-close-modal" id="btn-close-modal-cliente" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer;">&times;</button>
+      </div>
+
+      <form id="form-nuevo-cliente">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div class="form-control-group">
+            <label for="cli-usuario">Usuario de Cuenta</label>
+            <input type="text" id="cli-usuario" class="login-input" placeholder="ej. cliente_alpha" required>
+          </div>
+
+          <div class="form-control-group">
+            <label for="cli-password">Contraseña</label>
+            <input type="password" id="cli-password" class="login-input" placeholder="••••••••" required>
+          </div>
+
+          <!-- FECHA DE INICIO EDITABLE CON FLATPICKR -->
+          <div class="form-control-group">
+            <label for="cli-fecha-inicio">Fecha de Inicio (Editable)</label>
+            <input type="text" id="cli-fecha-inicio" class="login-input" placeholder="Seleccionar inicio..." required>
+          </div>
+
+          <!-- FECHA DE VENCIMIENTO CALCULADA DESDE FECHA DE INICIO -->
+          <div class="form-control-group">
+            <label for="cli-vencimiento">Fecha de Vencimiento</label>
+            <input type="text" id="cli-vencimiento" class="login-input" placeholder="Seleccionar vencimiento..." required>
+            <div class="time-buttons-row">
+              <button type="button" class="btn-quick-time" data-hours="1">+1 Hora</button>
+              <button type="button" class="btn-quick-time" data-months="1">+1 Mes</button>
+              <button type="button" class="btn-quick-time" data-months="3">+3 Meses</button>
+              <button type="button" class="btn-quick-time" data-months="6">+6 Meses</button>
+            </div>
+          </div>
+
+          <div class="form-control-group">
+            <label>Asignar Perfiles Autorizados</label>
+            <div class="perfiles-accordion">
+              <div class="accordion-header" id="accordion-header">
+                <span>Seleccionar Perfiles (<span id="count-checked-perfiles">0</span> seleccionados)</span>
+                <span>▼</span>
+              </div>
+              <div class="accordion-body" id="accordion-body">
+                <input type="text" id="search-perfil-filter" class="search-input-inline" placeholder="Buscar perfil...">
+                <div id="cli-perfiles-checkboxes" style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel-modal-cliente">Cancelar</button>
+          <button type="submit" class="btn-save">Guardar Cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      let currentUserRole = 'superadmin';
+      let currentUserAssignedProfiles = [];
+
+      // 1. LÓGICA DE LOGIN CON CONTROL DE ROLES
+      const loginView = document.getElementById('login-view');
+      const appLayout = document.getElementById('app-layout');
+      const loginForm = document.getElementById('login-form');
+      const userRoleBadge = document.getElementById('user-role-badge');
+      const headerUserStatus = document.getElementById('header-user-status');
+      const profilesSectionTitle = document.getElementById('profiles-section-title');
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuario = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-pass').value.trim();
+
+        if (window.api && window.api.login) {
+          const res = await window.api.login({ usuario, password });
+          if (res && res.success) {
+            currentUserRole = res.role || 'cliente';
+            currentUserAssignedProfiles = res.perfilesAsignados || [];
+
+            aplicarControlDeRoles();
+            loginView.style.display = 'none';
+            appLayout.style.display = 'flex';
+            await inicializarDashboard();
+          } else {
+            alert(res.mensaje || 'Error de autenticación.');
+          }
+        } else {
+          loginView.style.display = 'none';
+          appLayout.style.display = 'flex';
+          await inicializarDashboard();
+        }
+      });
+
+      function aplicarControlDeRoles() {
+        const adminElements = document.querySelectorAll('.admin-only');
+        const sidebar = document.getElementById('app-sidebar');
+
+        if (currentUserRole === 'cliente') {
+          adminElements.forEach(el => el.classList.add('admin-only'));
+          sidebar.style.width = '200px';
+          userRoleBadge.textContent = 'Modo Cliente';
+          headerUserStatus.textContent = 'Cuenta Cliente Activa';
+          profilesSectionTitle.textContent = 'Mis Perfiles Asignados';
+        } else {
+          adminElements.forEach(el => el.classList.remove('admin-only'));
+          sidebar.style.width = '240px';
+          userRoleBadge.textContent = currentUserRole === 'superadmin' ? 'Superadmin' : 'Administrador';
+          headerUserStatus.textContent = 'Acceso Total Licenciado';
+          profilesSectionTitle.textContent = 'Perfiles Configurados';
+        }
+      }
+
+      // 2. NAVEGACIÓN DE PESTAÑAS
+      const navPerfiles = document.getElementById('nav-perfiles');
+      const navClientes = document.getElementById('nav-clientes');
+      const navAvisos = document.getElementById('nav-avisos');
+      const navConfiguracion = document.getElementById('nav-configuracion');
+      const navCmd = document.getElementById('nav-cmd');
+
+      const viewPerfiles = document.getElementById('view-perfiles');
+      const viewClientes = document.getElementById('view-clientes');
+      const viewAvisos = document.getElementById('view-avisos');
+      const viewConfiguracion = document.getElementById('view-configuracion');
+      const viewCmd = document.getElementById('view-cmd');
+
+      const viewSubtitle = document.getElementById('view-subtitle');
+
+      function cambiarPestana(navActive, viewActive, subtitle) {
+        [navPerfiles, navClientes, navAvisos, navConfiguracion, navCmd].forEach(n => { if (n) n.classList.remove('active'); });
+        [viewPerfiles, viewClientes, viewAvisos, viewConfiguracion, viewCmd].forEach(v => { if (v) v.classList.remove('active'); });
+        if (navActive) navActive.classList.add('active');
+        if (viewActive) viewActive.classList.add('active');
+        viewSubtitle.textContent = subtitle;
+      }
+
+      navPerfiles.addEventListener('click', () => cambiarPestana(navPerfiles, viewPerfiles, 'Supervisión y control de motores de navegación aislados'));
+      navClientes.addEventListener('click', async () => {
+        cambiarPestana(navClientes, viewClientes, 'Asignación de perfiles y control de licencias por HWID');
+        await renderizarTablaClientes();
+      });
+      navAvisos.addEventListener('click', () => cambiarPestana(navAvisos, viewAvisos, 'Historial de notificaciones y alertas globales'));
+      navConfiguracion.addEventListener('click', () => cambiarPestana(navConfiguracion, viewConfiguracion, 'Parámetros HWID y estado del motor Antidetect'));
+      if (navCmd) {
+        navCmd.addEventListener('click', () => cambiarPestana(navCmd, viewCmd, 'Consola de diagnóstico y registros del sistema en tiempo real'));
+      }
+
+      const btnClearCmd = document.getElementById('btn-clear-cmd');
+      if (btnClearCmd) {
+        btnClearCmd.addEventListener('click', () => {
+          const cmd = document.getElementById('cmd-console');
+          if (cmd) cmd.innerHTML = `<div style="color:#6FFFE9; margin-bottom:8px;">[SYSTEM] Consola limpiada.</div>`;
+        });
+      }
+
+      async function inicializarDashboard() {
+        if (window.api && window.api.getHwid) {
+          const hwid = await window.api.getHwid();
+          document.getElementById('hwid-display').textContent = hwid;
+          document.getElementById('hwid-sidebar').textContent = hwid.slice(0, 14) + '...';
+        }
+        await renderizarTablaPerfiles();
+      }
+
+      // 3. TABLA DE PERFILES FILTRADA SEGÚN ROL
+      const profilesTbody = document.getElementById('profiles-tbody');
+
+      function mostrarCargaTabla(tbody) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding:24px;">
+              <div class="dicloak-spinner"></div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">Cargando registros...</div>
+            </td>
+          </tr>
+        `;
+      }
+
+      async function renderizarTablaPerfiles() {
+        if (!window.api || !window.api.obtenerPerfiles) return;
+        mostrarCargaTabla(profilesTbody);
+
+        let perfiles = await window.api.obtenerPerfiles();
+        profilesTbody.innerHTML = '';
+
+        if (currentUserRole === 'cliente') {
+          perfiles = perfiles.filter(p => currentUserAssignedProfiles.includes(p.id.toString()));
+        }
+
+        if (!perfiles || perfiles.length === 0) {
+          profilesTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#8D99AE; padding:20px;">No hay perfiles disponibles.</td></tr>`;
+          return;
+        }
+
+        perfiles.forEach(p => {
+          const tr = document.createElement('tr');
+          const proxyText = (p.proxyHost && p.proxyPort) ? `${p.proxyHost}:${p.proxyPort}` : (p.proxy || '');
+          const proxyBadge = proxyText 
+            ? `<span class="badge-proxy">${proxyText}</span>` 
+            : `<span class="badge-tag">Local Directo</span>`;
+
+          const colorTagStyle = p.etiquetaColor 
+            ? `style="background:${p.etiquetaColor}22; color:${p.etiquetaColor}; border:1px solid ${p.etiquetaColor}66;"` 
+            : '';
+
+          tr.innerHTML = `
+            <td class="col-id">${p.id}</td>
+            <td class="col-name">${p.nombre}</td>
+            <td><span class="badge-tag" style="background:#111A33; color:var(--text-muted);">${p.categoria || 'General'}</span></td>
+            <td><span class="badge-tag" ${colorTagStyle}>${p.etiqueta}</span></td>
+            <td>${proxyBadge}</td>
+            <td>
+              <div class="action-buttons-cell">
+                <button class="btn-toggle-profile" data-id="${p.id}" data-estado="cerrado">Abrir</button>
+                <button class="btn-action-sm btn-clone-profile admin-only" data-id="${p.id}">Clonar</button>
+                <button class="btn-action-sm btn-export-profile admin-only" data-id="${p.id}">Exportar</button>
+                <button class="btn-delete btn-delete-profile admin-only" data-id="${p.id}">Eliminar</button>
+              </div>
+            </td>
+          `;
+          profilesTbody.appendChild(tr);
+        });
+
+        aplicarControlDeRoles();
+        asignarEventosPerfiles();
+      }
+
+      function asignarEventosPerfiles() {
+        document.querySelectorAll('.btn-toggle-profile').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const profileId = btn.getAttribute('data-id');
+            const estadoActual = btn.getAttribute('data-estado') || 'cerrado';
+
+            if (estadoActual === 'cerrado') {
+              btn.disabled = true;
+              btn.textContent = 'Abriendo...';
+              try {
+                const res = await window.api.abrirPerfil(profileId);
+                if (res && res.success) {
+                  btn.setAttribute('data-estado', 'abierto');
+                  btn.textContent = 'Cerrar';
+                  btn.disabled = false;
+                  const tr = btn.closest('tr');
+                  tr.children[4].innerHTML = `<span class="badge-active">Ejecutándose</span>`;
+                } else {
+                  alert(res.message || 'No se pudo abrir el perfil.');
+                  btn.setAttribute('data-estado', 'cerrado');
+                  btn.textContent = 'Abrir';
+                  btn.disabled = false;
+                }
+              } catch (err) {
+                alert(`Error al abrir perfil ${profileId}`);
+                btn.setAttribute('data-estado', 'cerrado');
+                btn.textContent = 'Abrir';
+                btn.disabled = false;
+              }
+            } else {
+              btn.disabled = true;
+              btn.textContent = 'Cerrando...';
+              try {
+                await window.api.cerrarPerfil(profileId);
+              } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Cerrar';
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('.btn-clone-profile').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const res = await window.api.clonarPerfil(id);
+            if (res && res.success) await renderizarTablaPerfiles();
+          });
+        });
+
+        document.querySelectorAll('.btn-export-profile').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            const res = await window.api.exportarPerfil(id);
+            if (res && res.success) alert(`Perfil exportado en: ${res.filePath}`);
+          });
+        });
+
+        document.querySelectorAll('.btn-delete-profile').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm(`¿Eliminar perfil ID ${id}?`)) {
+              const res = await window.api.eliminarPerfil(id);
+              if (res && res.success) await renderizarTablaPerfiles();
+            }
+          });
+        });
+      }
+
+      // 4. MODAL PERFILES CON OPCIÓN ALEATORIO Y COLORES
+      let currentOsTarget = 'Aleatorio';
+      let currentProxyMode = 'sin';
+
+      const osUserAgents = {
+        Aleatorio: 'Aleatorio (Se asignará un User-Agent al azar al iniciar)',
+        Windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        macOS: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        Linux: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36'
+      };
+
+      const btnOsList = document.querySelectorAll('.btn-os');
+      const summaryOs = document.getElementById('summary-os');
+      const summaryUaText = document.getElementById('summary-ua-text');
+      const summaryProxy = document.getElementById('summary-proxy');
+
+      function actualizarResumen() {
+        summaryOs.textContent = currentOsTarget;
+        summaryUaText.textContent = osUserAgents[currentOsTarget] || osUserAgents.Aleatorio;
+
+        if (currentProxyMode === 'sin') {
+          summaryProxy.textContent = 'Sin Proxy (Directo)';
+        } else {
+          const host = document.getElementById('prof-proxy-host').value.trim();
+          const port = document.getElementById('prof-proxy-port').value.trim();
+          summaryProxy.textContent = host && port ? `${host}:${port}` : 'Personalizado (Incompleto)';
+        }
+      }
+
+      btnOsList.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btnOsList.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentOsTarget = btn.getAttribute('data-os');
+          actualizarResumen();
+        });
+      });
+
+      const btnProxySin = document.getElementById('btn-proxy-sin');
+      const btnProxyCustom = document.getElementById('btn-proxy-custom');
+      const proxyCustomContainer = document.getElementById('proxy-custom-container');
+
+      btnProxySin.addEventListener('click', () => {
+        btnProxySin.classList.add('active');
+        btnProxyCustom.classList.remove('active');
+        proxyCustomContainer.style.display = 'none';
+        currentProxyMode = 'sin';
+        actualizarResumen();
+      });
+
+      btnProxyCustom.addEventListener('click', () => {
+        btnProxyCustom.classList.add('active');
+        btnProxySin.classList.remove('active');
+        proxyCustomContainer.style.display = 'flex';
+        currentProxyMode = 'custom';
+        actualizarResumen();
+      });
+
+      document.getElementById('btn-parse-proxy').addEventListener('click', () => {
+        const val = document.getElementById('proxy-quick-parse').value.trim();
+        if (!val) return;
+        const parts = val.split(':');
+        if (parts.length >= 2) {
+          document.getElementById('prof-proxy-host').value = parts[0] || '';
+          document.getElementById('prof-proxy-port').value = parts[1] || '';
+          document.getElementById('prof-proxy-user').value = parts[2] || '';
+          document.getElementById('prof-proxy-pass').value = parts[3] || '';
+          actualizarResumen();
+        }
+      });
+
+      const modalPerfil = document.getElementById('modal-nuevo-perfil');
+      const btnOpenModalPerfil = document.getElementById('btn-open-modal-perfil');
+      const btnCloseModalPerfil = document.getElementById('btn-close-modal-perfil');
+      const btnCancelModalPerfil = document.getElementById('btn-cancel-modal-perfil');
+      const formNuevoPerfil = document.getElementById('form-nuevo-perfil');
+
+      btnOpenModalPerfil.addEventListener('click', () => {
+        formNuevoPerfil.reset();
+        currentOsTarget = 'Aleatorio';
+        currentProxyMode = 'sin';
+        btnOsList.forEach(b => b.classList.remove('active'));
+        btnOsList[0].classList.add('active');
+        btnProxySin.classList.add('active');
+        btnProxyCustom.classList.remove('active');
+        proxyCustomContainer.style.display = 'none';
+        actualizarResumen();
+        modalPerfil.style.display = 'flex';
+      });
+
+      function cerrarModalPerfil() { modalPerfil.style.display = 'none'; }
+      btnCloseModalPerfil.addEventListener('click', cerrarModalPerfil);
+      btnCancelModalPerfil.addEventListener('click', cerrarModalPerfil);
+
+      formNuevoPerfil.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nombre = document.getElementById('prof-nombre').value.trim();
+        const categoria = document.getElementById('prof-categoria').value.trim() || 'General';
+        const etiquetaColor = document.getElementById('prof-etiqueta-color').value;
+        const etiqueta = document.getElementById('prof-etiqueta').value.trim();
+        const urlAviso = document.getElementById('prof-url-aviso').value.trim();
+        const host = document.getElementById('prof-proxy-host').value.trim();
+        const port = document.getElementById('prof-proxy-port').value.trim();
+        const user = document.getElementById('prof-proxy-user').value.trim();
+        const pass = document.getElementById('prof-proxy-pass').value.trim();
+        const cookie = document.getElementById('prof-cookie-hidden').value.trim();
+
+        const proxyFull = (currentProxyMode === 'custom' && host && port) ? `${host}:${port}` : '';
+        const userAgentVal = osUserAgents[currentOsTarget] || '';
+
+        const res = await window.api.crearPerfil({
+          nombre,
+          categoria,
+          etiquetaColor,
+          etiqueta,
+          urlAviso,
+          proxy: proxyFull,
+          proxyHost: host,
+          proxyPort: port,
+          proxyUser: user,
+          proxyPass: pass,
+          osTarget: currentOsTarget,
+          userAgent: userAgentVal,
+          cookie
+        });
+
+        if (res && res.success) {
+          cerrarModalPerfil();
+          await renderizarTablaPerfiles();
+        }
+      });
+
+      // 5. REGISTRO CLIENTE CON FECHA DE INICIO EDITABLE FLATPICKR
+      const fpInicio = flatpickr("#cli-fecha-inicio", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        theme: "dark",
+        defaultDate: new Date()
+      });
+
+      const fpVencimiento = flatpickr("#cli-vencimiento", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        theme: "dark",
+        defaultDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      });
+
+      // BOTONES DE TIEMPO RÁPIDO SUMAN A PARTIR DE FECHA DE INICIO SELECCIONADA
+      document.querySelectorAll('.btn-quick-time').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const startDate = fpInicio.selectedDates.length > 0 ? new Date(fpInicio.selectedDates[0]) : new Date();
+          const hours = parseInt(btn.getAttribute('data-hours') || '0', 10);
+          const months = parseInt(btn.getAttribute('data-months') || '0', 10);
+
+          if (hours > 0) startDate.setHours(startDate.getHours() + hours);
+          if (months > 0) startDate.setMonth(startDate.getMonth() + months);
+
+          fpVencimiento.setDate(startDate);
+        });
+      });
+
+      const accordionHeader = document.getElementById('accordion-header');
+      const accordionBody = document.getElementById('accordion-body');
+      const searchPerfilFilter = document.getElementById('search-perfil-filter');
+
+      accordionHeader.addEventListener('click', () => accordionBody.classList.toggle('open'));
+      searchPerfilFilter.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        document.querySelectorAll('.cli-chk-item').forEach(item => {
+          item.style.display = item.textContent.toLowerCase().includes(query) ? 'flex' : 'none';
+        });
+      });
+
+      // 6. CLIENTES TABLA
+      const clientesTbody = document.getElementById('clientes-tbody');
+      const modalCliente = document.getElementById('modal-nuevo-cliente');
+      const btnOpenModalCliente = document.getElementById('btn-open-modal-cliente');
+      const btnCloseModalCliente = document.getElementById('btn-close-modal-cliente');
+      const btnCancelModalCliente = document.getElementById('btn-cancel-modal-cliente');
+      const formNuevoCliente = document.getElementById('form-nuevo-cliente');
+      const checkboxesContainer = document.getElementById('cli-perfiles-checkboxes');
+
+      async function renderizarTablaClientes() {
+        if (!window.api || !window.api.obtenerClientes) return;
+        mostrarCargaTabla(clientesTbody);
+
+        const clientes = await window.api.obtenerClientes();
+        clientesTbody.innerHTML = '';
+
+        if (!clientes || clientes.length === 0) {
+          clientesTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#8D99AE; padding:20px;">No hay clientes registrados.</td></tr>`;
+          return;
+        }
+
+        clientes.forEach(c => {
+          const tr = document.createElement('tr');
+          const perfilesTexto = (c.perfilesAsignados && c.perfilesAsignados.length > 0)
+            ? c.perfilesAsignados.map(id => `<span class="badge-tag" style="margin-right:2px;">ID ${id}</span>`).join('')
+            : '<span style="color:#8D99AE;">Sin Asignar</span>';
+
+          let vencimientoBadge = '';
+          if (c.fechaVencimiento) {
+            const expTime = new Date(c.fechaVencimiento).getTime();
+            const esExpirado = !isNaN(expTime) && Date.now() > expTime;
+            const fechaFormateada = new Date(c.fechaVencimiento).toLocaleDateString();
+
+            vencimientoBadge = esExpirado 
+              ? `<span class="badge-expired">EXPIRADO (${fechaFormateada})</span>` 
+              : `<span class="badge-active">Vence: ${fechaFormateada}</span>`;
+          } else {
+            vencimientoBadge = `<span class="badge-active">Ilimitado</span>`;
+          }
+
+          const hwidBadge = c.hwidVinculado
+            ? `<span class="badge-proxy" title="${c.hwidVinculado}">${c.hwidVinculado.slice(0, 8)}...</span>`
+            : `<span style="font-size:0.75rem; color:var(--warning);">Sin Vincular</span>`;
+
+          tr.innerHTML = `
+            <td class="col-id">${c.id}</td>
+            <td class="col-name">${c.usuario || c.nombre}</td>
+            <td style="font-family:monospace; color:var(--text-muted);">${c.password || '••••'}</td>
+            <td>${vencimientoBadge}</td>
+            <td>${hwidBadge}</td>
+            <td>${perfilesTexto}</td>
+            <td>
+              <div class="action-buttons-cell">
+                ${c.hwidVinculado ? `<button class="btn-action-sm btn-unbind-hwid" data-id="${c.id}">Desvincular PC</button>` : ''}
+                <button class="btn-delete btn-delete-cliente" data-id="${c.id}">Eliminar</button>
+              </div>
+            </td>
+          `;
+          clientesTbody.appendChild(tr);
+        });
+
+        document.querySelectorAll('.btn-unbind-hwid').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm(`¿Desvincular el equipo de este cliente?`)) {
+              const res = await window.api.desvincularHwidCliente(id);
+              if (res && res.success) await renderizarTablaClientes();
+            }
+          });
+        });
+
+        document.querySelectorAll('.btn-delete-cliente').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.getAttribute('data-id');
+            if (confirm(`¿Eliminar cliente ${id}?`)) {
+              const res = await window.api.eliminarCliente(id);
+              if (res && res.success) await renderizarTablaClientes();
+            }
+          });
+        });
+      }
+
+      btnOpenModalCliente.addEventListener('click', async () => {
+        formNuevoCliente.reset();
+        fpInicio.setDate(new Date());
+        checkboxesContainer.innerHTML = '';
+        accordionBody.classList.remove('open');
+        document.getElementById('count-checked-perfiles').textContent = '0';
+
+        if (window.api && window.api.obtenerPerfiles) {
+          const perfiles = await window.api.obtenerPerfiles();
+          if (perfiles && perfiles.length > 0) {
+            perfiles.forEach(p => {
+              const div = document.createElement('div');
+              div.className = 'cli-chk-item';
+              div.style.display = 'flex';
+              div.style.alignItems = 'center';
+              div.style.gap = '8px';
+              div.style.fontSize = '0.82rem';
+
+              div.innerHTML = `
+                <input type="checkbox" name="perfil-check" value="${p.id}" id="chk-${p.id}">
+                <label for="chk-${p.id}">${p.nombre} (ID ${p.id})</label>
+              `;
+              checkboxesContainer.appendChild(div);
+            });
+
+            document.querySelectorAll('input[name="perfil-check"]').forEach(chk => {
+              chk.addEventListener('change', () => {
+                const count = document.querySelectorAll('input[name="perfil-check"]:checked').length;
+                document.getElementById('count-checked-perfiles').textContent = count;
+              });
+            });
+          }
+        }
+        modalCliente.style.display = 'flex';
+      });
+
+      function cerrarModalCliente() { modalCliente.style.display = 'none'; }
+      btnCloseModalCliente.addEventListener('click', cerrarModalCliente);
+      btnCancelModalCliente.addEventListener('click', cerrarModalCliente);
+
+      formNuevoCliente.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const usuario = document.getElementById('cli-usuario').value.trim();
+        const password = document.getElementById('cli-password').value.trim();
+        const fechaInicio = document.getElementById('cli-fecha-inicio').value;
+        const fechaVencimiento = document.getElementById('cli-vencimiento').value;
+        const checked = Array.from(document.querySelectorAll('input[name="perfil-check"]:checked')).map(cb => cb.value);
+
+        const res = await window.api.crearCliente({ 
+          usuario, 
+          password, 
+          nombre: usuario, 
+          fechaInicio, 
+          fechaVencimiento, 
+          perfilesAsignados: checked 
+        });
+        if (res && res.success) {
+          cerrarModalCliente();
+          await renderizarTablaClientes();
+        }
+      });
+
+      // ESCUCHADOR TIEMPO REAL PARA ESTADO DE PERFIL
+      if (window.api && window.api.onPerfilActualizado) {
+        window.api.onPerfilActualizado((data) => {
+          if (data && data.id) {
+            const btn = document.querySelector(`.btn-toggle-profile[data-id="${data.id}"]`);
+            if (btn && data.estado === 'cerrado') {
+              btn.setAttribute('data-estado', 'cerrado');
+              btn.textContent = 'Abrir';
+              btn.disabled = false;
+            }
+          }
+        });
+      }
+
+      // ESCUCHADOR TIEMPO REAL PARA TERMINAL CMD (LOGS)
+      if (window.api && window.api.onLogMessage) {
+        window.api.onLogMessage((mensaje) => {
+          const cmd = document.getElementById('cmd-console');
+          if (cmd) {
+            const p = document.createElement('div');
+            p.textContent = mensaje;
+            p.style.margin = '2px 0';
+            p.style.lineHeight = '1.4';
+            if (mensaje.includes('[ERROR]')) {
+              p.style.color = '#FF4C4C';
+            } else if (mensaje.includes('[WARN]')) {
+              p.style.color = '#e0af68';
+            } else {
+              p.style.color = '#00FF00';
+            }
+            cmd.appendChild(p);
+            cmd.scrollTop = cmd.scrollHeight;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

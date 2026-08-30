@@ -1,0 +1,66 @@
+{
+  "name": "100prepremium",
+  "version": "2.0.0",
+  "description": "100prepremium v2.0 - Suite Antidetect y Gestión de Perfiles Multicuenta",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "clean": "rimraf dist out-build release-instalador",
+    "build-windows": "npm run clean && electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.100prepremium.app",
+    "productName": "100prepremium",
+    "asar": true,
+    "compression": "maximum",
+    "directories": {
+      "output": "release-instalador"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Nilton92838374",
+        "repo": "100prepremium-app"
+      }
+    ],
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/.[^/]*",
+      "!**/*.map"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "100prepremium"
+    }
+  },
+  "keywords": [
+    "100prepremium",
+    "electron",
+    "antidetect",
+    "hwid"
+  ],
+  "author": "100prepremium Team",
+  "license": "ISC",
+  "dependencies": {
+    "electron-unhandled": "^4.0.1",
+    "node-machine-id": "^1.1.12"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.0.0",
+    "electron-packager": "^17.1.2",
+    "rimraf": "^5.0.10"
+  }
+}

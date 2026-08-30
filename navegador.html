@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>100prepremium Navegador</title>
+  <style>
+    body { margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; background-color: #0B132B; font-family: system-ui, -apple-system, sans-serif; }
+    #toolbar { display: flex; padding: 8px 12px; background-color: #1C2541; align-items: center; gap: 10px; border-bottom: 1px solid #3A506B; }
+    .btn { background-color: #3A506B; color: #6FFFE9; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+    .btn:hover { background-color: #5BC0BE; color: #0B132B; }
+    #url-input { flex-grow: 1; padding: 6px 12px; border-radius: 15px; border: 1px solid #3A506B; background-color: #0B132B; color: #6FFFE9; outline: none; }
+    #url-input:focus { border-color: #5BC0BE; }
+    webview { flex-grow: 1; width: 100%; border: none; background-color: #FFFFFF; }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <button class="btn" id="btn-back">◄</button>
+    <button class="btn" id="btn-forward">►</button>
+    <button class="btn" id="btn-reload">↻</button>
+    <input type="text" id="url-input" value="">
+  </div>
+  <webview id="visor" src="about:blank"></webview>
+
+  <script>
+    // Capturar parámetros de la URL pasados desde main.js
+    const params = new URLSearchParams(window.location.search);
+    const urlInicial = params.get('url') || 'https://google.com';
+    const particion = params.get('partition');
+
+    const webview = document.getElementById('visor');
+    const urlInput = document.getElementById('url-input');
+
+    // Configurar aislamiento
+    if (particion) {
+      webview.setAttribute('partition', particion);
+    }
+    webview.setAttribute('src', urlInicial);
+    urlInput.value = urlInicial;
+
+    // Controles de botones
+    document.getElementById('btn-back').addEventListener('click', () => webview.goBack());
+    document.getElementById('btn-forward').addEventListener('click', () => webview.goForward());
+    document.getElementById('btn-reload').addEventListener('click', () => webview.reload());
+
+    // Navegar al presionar Enter en el input
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        let nuevaUrl = urlInput.value.trim();
+        if (nuevaUrl && !nuevaUrl.startsWith('http://') && !nuevaUrl.startsWith('https://')) {
+          nuevaUrl = 'https://' + nuevaUrl;
+        }
+        webview.loadURL(nuevaUrl);
+      }
+    });
+
+    // Actualizar la barra de URL automáticamente cuando el cliente navega
+    webview.addEventListener('did-navigate', (e) => { urlInput.value = e.url; });
+    webview.addEventListener('did-navigate-in-page', (e) => { urlInput.value = e.url; });
+  </script>
+</body>
+</html>
