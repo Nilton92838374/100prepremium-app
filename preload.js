@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('api', {
   crearCliente: (data) => ipcRenderer.invoke('crear-cliente', data),
   eliminarCliente: (idCliente) => ipcRenderer.invoke('eliminar-cliente', idCliente),
   desvincularHwidCliente: (idCliente) => ipcRenderer.invoke('desvincular-hwid-cliente', idCliente),
+  logout: () => ipcRenderer.invoke('logout'),
   onPerfilActualizado: (callback) => ipcRenderer.on('perfil-actualizado', (_event, data) => callback(data)),
   onLogMessage: (callback) => ipcRenderer.on('log-message', (_event, data) => callback(data))
 });

@@ -10,6 +10,18 @@ const session = electron.session;
 const fs = require('fs');
 const path = require('path');
 
+const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
+const { createClient } = require('@supabase/supabase-js');
+
+// Configuración de Supabase Cloud (Variables de Entorno o Fallback)
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://TU_PROYECTO.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'TU_SUPABASE_ANON_KEY';
+
+const supabase = (SUPABASE_URL && !SUPABASE_URL.includes('TU_PROYECTO'))
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
 const nodeMachineId = require('node-machine-id');
 const machineIdSync = nodeMachineId.machineIdSync;
 
@@ -344,6 +356,13 @@ app.whenReady().then(() => {
     return { success: false, mensaje: "Usuario no registrado." };
   });
 
+  // LOGOUT (CERRAR SESIÓN)
+  ipcMain.handle('logout', async () => {
+    console.log('[AUTENTICACIÓN] Sesión cerrada por el usuario. Limpiando procesos activos...');
+    await cerrarProcesosDefinitivamente();
+    return { success: true };
+  });
+
   // ---------------------------------------------------------
   // HANDLERS IPC DE PERFILES
   // ---------------------------------------------------------
@@ -624,6 +643,34 @@ app.whenReady().then(() => {
       // Configurar Proxy en la sesión aislada si existe
       const perfilSession = session.fromPartition('persist:perfil-' + idStr);
 
+      // Restauración de cookies previas guardadas en el perfil
+      if (perfilData && perfilData.cookie && perfilData.cookie.trim() !== '') {
+        try {
+          const cookiesArray = JSON.parse(perfilData.cookie.trim());
+          if (Array.isArray(cookiesArray) && cookiesArray.length > 0) {
+            for (const c of cookiesArray) {
+              const domainClean = (c.domain || '').replace(/^\./, '');
+              const cookieUrl = (c.secure ? 'https://' : 'http://') + (domainClean || 'localhost') + (c.path || '/');
+              try {
+                await perfilSession.cookies.set({
+                  url: cookieUrl,
+                  name: c.name,
+                  value: c.value,
+                  domain: c.domain,
+                  path: c.path,
+                  secure: c.secure,
+                  httpOnly: c.httpOnly,
+                  expirationDate: c.expirationDate
+                });
+              } catch (cErr) {}
+            }
+            console.log(`[COOKIES RESTORED] Inyectadas ${cookiesArray.length} cookies en partición persist:perfil-${idStr}`);
+          }
+        } catch (err) {
+          console.warn(`[COOKIES RESTORE ERROR] Error parseando cookies para el perfil ${idStr}:`, err.message);
+        }
+      }
+
       let effectiveProxy = proxyStr;
       if (!effectiveProxy && perfilData && perfilData.proxy) {
         effectiveProxy = perfilData.proxy.trim();
@@ -642,6 +689,25 @@ app.whenReady().then(() => {
           callback(perfilData.proxyUser, perfilData.proxyPass);
         });
       }
+
+      // Captura automática de cookies antes de cerrar la ventana del perfil
+      winPerfil.on('close', async () => {
+        try {
+          const activeCookies = await perfilSession.cookies.get({});
+          if (activeCookies && activeCookies.length > 0) {
+            const cookiesJson = JSON.stringify(activeCookies);
+            const listPerfiles = cargarPerfiles();
+            const targetProfile = listPerfiles.find(p => p.id === idStr);
+            if (targetProfile) {
+              targetProfile.cookie = cookiesJson;
+              guardarPerfiles(listPerfiles);
+              console.log(`[COOKIES AUTO-SAVED] Se guardaron ${activeCookies.length} cookies para el perfil ${idStr}`);
+            }
+          }
+        } catch (cookieErr) {
+          console.warn(`[COOKIES SAVE WARNING] No se pudieron guardar cookies del perfil ${idStr}:`, cookieErr.message);
+        }
+      });
 
       // Guardar en estado activo y manejar el cierre de la ventana
       perfilesActivos.set(idStr, winPerfil);
@@ -683,6 +749,22 @@ app.whenReady().then(() => {
   });
 
   createMainWindow();
+
+  // Configuración de actualizaciones silenciosas en segundo plano
+  autoUpdater.logger = log;
+  autoUpdater.logger.transports.file.level = 'info';
+
+  // Buscar actualizaciones sin avisar
+  autoUpdater.checkForUpdatesAndNotify();
+
+  // Eventos de consola para monitoreo del desarrollador
+  autoUpdater.on('update-available', () => {
+    console.log('Actualización detectada. Descargando en segundo plano...');
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    console.log('Descarga terminada. Se instalará al cerrar la app.');
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();

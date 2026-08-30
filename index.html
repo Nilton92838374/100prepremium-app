@@ -931,9 +931,12 @@
           <h1>100prepremium v2.0</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
-        <div class="badge-status">
-          <div class="status-dot"></div>
-          <span id="header-user-status">Licencia SaaS Activa</span>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="badge-status">
+            <div class="status-dot"></div>
+            <span id="header-user-status">Licencia SaaS Activa</span>
+          </div>
+          <button class="btn-action-sm" id="btn-logout" style="background: rgba(247, 118, 142, 0.15); color: var(--error-color); border: 1px solid rgba(247, 118, 142, 0.3); font-weight:700;">Cerrar Sesión</button>
         </div>
       </header>
 
@@ -1275,6 +1278,21 @@
       const userRoleBadge = document.getElementById('user-role-badge');
       const headerUserStatus = document.getElementById('header-user-status');
       const profilesSectionTitle = document.getElementById('profiles-section-title');
+
+      const btnLogout = document.getElementById('btn-logout');
+      if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+          if (confirm('¿Cerrar sesión de la plataforma?')) {
+            if (window.api && window.api.logout) {
+              await window.api.logout();
+            }
+            currentUserRole = null;
+            currentUserAssignedProfiles = [];
+            appLayout.style.display = 'none';
+            loginView.style.display = 'flex';
+          }
+        });
+      }
 
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();

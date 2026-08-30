@@ -1,6 +1,6 @@
 {
   "name": "100prepremium",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "100prepremium v2.0 - Suite Antidetect y Gestión de Perfiles Multicuenta",
   "main": "main.js",
   "scripts": {
@@ -54,7 +54,10 @@
   "author": "100prepremium Team",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
+    "electron-log": "^5.4.4",
     "electron-unhandled": "^4.0.1",
+    "electron-updater": "^6.8.9",
     "node-machine-id": "^1.1.12"
   },
   "devDependencies": {
