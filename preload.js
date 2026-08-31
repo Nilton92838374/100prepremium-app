@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld('api', {
   desvincularHwidCliente: (idCliente) => ipcRenderer.invoke('desvincular-hwid-cliente', idCliente),
   crearUsuarioAdmin: (data) => ipcRenderer.invoke('crear-usuario-admin', data),
   obtenerUsuarios: () => ipcRenderer.invoke('obtener-usuarios'),
+  invitarMiembroEquipo: (data) => ipcRenderer.invoke('invitar-miembro-equipo', data),
+  obtenerMiembrosEquipo: () => ipcRenderer.invoke('obtener-miembros-equipo'),
   actualizarPerfil: (data) => ipcRenderer.invoke('actualizar-perfil', data),
   logout: () => ipcRenderer.invoke('logout'),
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),

@@ -15,18 +15,31 @@
 
   <style>
     :root {
-      --bg-main: #121212;
-      --panel-bg: #1a1a1a;
-      --border-sub: #2a2a2a;
-      --primary-btn: #2d2d2d;
-      --primary-hover: #374151;
-      --highlight: #e5e5e5;
-      --text-main: #e5e5e5;
-      --text-muted: #a3a3a3;
-      --status-open: #a3a3a3;
-      --status-closed: #6b7280;
-      --error-color: #ef4444;
-      --warning: #f59e0b;
+      --bg-main: #0D1117;
+      --bg-sidebar: #101722;
+      --bg-header: #0F1620;
+      --bg-panel: #151D29;
+      --bg-row: #121A25;
+      --border-color: #273244;
+      --border-sub: #273244;
+      --color-primary: #2563EB;
+      --color-secondary: #0891B2;
+      --color-active: #22C55E;
+      --color-danger: #EF4444;
+      --text-main: #F1F5F9;
+      --text-secondary: #94A3B8;
+      --text-disabled: #64748B;
+
+      /* Aliases para compatibilidad */
+      --panel-bg: #151D29;
+      --primary-btn: #2563EB;
+      --primary-hover: #1d4ed8;
+      --highlight: #2563EB;
+      --text-muted: #94A3B8;
+      --status-open: #22C55E;
+      --status-closed: #64748B;
+      --error-color: #EF4444;
+      --warning: #F59E0B;
     }
 
     * {
@@ -34,8 +47,7 @@
       margin: 0;
       padding: 0;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      transition: background 0.1s ease, color 0.1s ease !important; /* CERO ANIMACIONES LENTAS */
-      border-radius: 0 !important; /* DISEÑO BORDERLESS PLANO */
+      transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease, opacity 0.12s ease !important;
     }
 
     body {
@@ -47,10 +59,8 @@
       overflow: hidden;
     }
 
-    /* ---------------------------------------------------------
-       CLASE ADMIN-ONLY PARA SEPARACIÓN DE ROLES
-       --------------------------------------------------------- */
-    .admin-only {
+    /* Permiso dinámico de roles */
+    .admin-only.hidden-role {
       display: none !important;
     }
 
@@ -1096,43 +1106,84 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="col-name">192.168.1.100</td>
-                  <td>8080</td>
-                  <td><span class="badge-tag" style="background:#1e1e1e; color:#fff;">HTTP</span></td>
-                  <td>IPv4 Directo</td>
-                  <td><span style="color:#00c853; font-weight:700;">● Activo</span></td>
-                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#fff;">Verificar</button></td>
+                  <td class="col-name" style="color:#e5e5e5; font-weight:600;">192.168.1.50</td>
+                  <td style="color:#a3a3a3;">8080</td>
+                  <td><span class="badge-tag" style="background:#2d2d2d; color:#e5e5e5;">HTTP</span></td>
+                  <td style="color:#a3a3a3;">IPv4 Directo</td>
+                  <td><span style="color:#a3a3a3; font-weight:600;">Activo</span></td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#e5e5e5; border:none; padding:4px 12px; cursor:pointer;">Verificar</button></td>
+                </tr>
+                <tr>
+                  <td class="col-name" style="color:#e5e5e5; font-weight:600;">10.0.0.15</td>
+                  <td style="color:#a3a3a3;">3128</td>
+                  <td><span class="badge-tag" style="background:#2d2d2d; color:#e5e5e5;">HTTPS</span></td>
+                  <td style="color:#a3a3a3;">Residencial US</td>
+                  <td><span style="color:#a3a3a3; font-weight:600;">Activo</span></td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#e5e5e5; border:none; padding:4px 12px; cursor:pointer;">Verificar</button></td>
+                </tr>
+                <tr>
+                  <td class="col-name" style="color:#e5e5e5; font-weight:600;">172.16.0.42</td>
+                  <td style="color:#a3a3a3;">8000</td>
+                  <td><span class="badge-tag" style="background:#2d2d2d; color:#e5e5e5;">SOCKS5</span></td>
+                  <td style="color:#a3a3a3;">Dedicado LATAM</td>
+                  <td><span style="color:#a3a3a3; font-weight:600;">Activo</span></td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#e5e5e5; border:none; padding:4px 12px; cursor:pointer;">Verificar</button></td>
+                </tr>
+                <tr>
+                  <td class="col-name" style="color:#e5e5e5; font-weight:600;">198.51.100.22</td>
+                  <td style="color:#a3a3a3;">1080</td>
+                  <td><span class="badge-tag" style="background:#2d2d2d; color:#e5e5e5;">SOCKS5</span></td>
+                  <td style="color:#a3a3a3;">Móvil 4G</td>
+                  <td><span style="color:#f59e0b; font-weight:600;">Revisión</span></td>
+                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#e5e5e5; border:none; padding:4px 12px; cursor:pointer;">Verificar</button></td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- SECCIÓN MIEMBROS -->
+        <!-- SECCIÓN CREACIÓN Y GESTIÓN DE MIEMBROS DE EQUIPO EN LA NUBE -->
         <div class="view-section admin-only" id="view-miembros">
-          <div class="table-container">
+          <div class="table-container" style="margin-bottom: 20px; background: #151D29; border: 1px solid #273244; border-radius: 8px;">
             <div class="table-header-title">
-              <h3>Gestión de Miembros de Equipo</h3>
-              <button class="btn-create" style="background:#0062ff;">+ Invitar Miembro</button>
+              <h3 style="color: #F1F5F9;">Crear Nuevo Miembro de Equipo (Usuario y Contraseña)</h3>
+            </div>
+            <form id="form-invitar-miembro-cloud" style="padding: 20px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 220px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Usuario o Correo del Miembro</label>
+                <input type="text" id="input-invitar-email" class="login-input" placeholder="ej. miembro_ventas / usuario@100prepremium.com" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
+              </div>
+              <div style="flex: 1; min-width: 180px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Contraseña Asignada</label>
+                <input type="password" id="input-invitar-pass" class="login-input" placeholder="Mínimo 6 caracteres" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
+              </div>
+              <div style="width: 150px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Rol Asignado</label>
+                <select id="select-invitar-rol" class="login-input" style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
+                  <option value="admin">Administrador</option>
+                  <option value="superadmin">Superadmin</option>
+                  <option value="cliente">Cliente</option>
+                </select>
+              </div>
+              <button type="submit" id="btn-submit-invitar-miembro" class="btn-create" style="background:#2563EB; color:#F1F5F9; padding: 10px 24px; border:none; border-radius: 6px; font-weight: 600; cursor:pointer;">+ Crear miembro</button>
+            </form>
+          </div>
+
+          <div class="table-container" style="background: #151D29; border: 1px solid #273244; border-radius: 8px;">
+            <div class="table-header-title">
+              <h3 style="color: #F1F5F9;">Miembros Registrados en la Nube</h3>
             </div>
             <table class="profiles-table">
               <thead>
-                <tr>
-                  <th>Usuario</th>
-                  <th>Rol</th>
-                  <th>Perfiles Asignados</th>
-                  <th>Estado</th>
-                  <th>Operación</th>
+                <tr style="background: #101722; color: #94A3B8;">
+                  <th>USUARIO / EMAIL</th>
+                  <th>ROL</th>
+                  <th>ESTADO</th>
+                  <th>FECHA REGISTRO</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td class="col-name">admin@100prepremium.com</td>
-                  <td><span class="badge-tag" style="background:rgba(0,98,255,0.2); color:#0062ff;">ADMIN</span></td>
-                  <td>Todos (Global)</td>
-                  <td><span style="color:#00c853; font-weight:700;">● Activo</span></td>
-                  <td><button class="btn-action-sm" style="background:#2d2d2d; color:#fff;">Editar</button></td>
-                </tr>
+              <tbody id="miembros-tbody">
+                <!-- Carga dinámica desde Supabase miembros_equipo -->
               </tbody>
             </table>
           </div>
@@ -1588,17 +1639,17 @@
         const sidebar = document.getElementById('app-sidebar');
 
         if (currentUserRole === 'cliente') {
-          adminElements.forEach(el => el.classList.add('admin-only'));
-          sidebar.style.width = '200px';
-          userRoleBadge.textContent = 'Modo Cliente';
-          headerUserStatus.textContent = 'Cuenta Cliente Activa';
-          profilesSectionTitle.textContent = 'Mis Perfiles Asignados';
+          adminElements.forEach(el => el.classList.add('hidden-role'));
+          if (sidebar) sidebar.style.width = '200px';
+          if (userRoleBadge) userRoleBadge.textContent = 'Modo Cliente';
+          if (headerUserStatus) headerUserStatus.textContent = 'Cuenta Cliente Activa';
+          if (profilesSectionTitle) profilesSectionTitle.textContent = 'Mis Perfiles Asignados';
         } else {
-          adminElements.forEach(el => el.classList.remove('admin-only'));
-          sidebar.style.width = '240px';
-          userRoleBadge.textContent = currentUserRole === 'superadmin' ? 'Superadmin' : 'Administrador';
-          headerUserStatus.textContent = 'Acceso Total Licenciado';
-          profilesSectionTitle.textContent = 'Perfiles Configurados';
+          adminElements.forEach(el => el.classList.remove('hidden-role'));
+          if (sidebar) sidebar.style.width = '240px';
+          if (userRoleBadge) userRoleBadge.textContent = currentUserRole === 'superadmin' ? 'Superadmin' : 'Administrador';
+          if (headerUserStatus) headerUserStatus.textContent = 'Acceso Total Licenciado';
+          if (profilesSectionTitle) profilesSectionTitle.textContent = 'Perfiles Configurados';
         }
       }
 
@@ -1632,7 +1683,10 @@
 
       if (navPerfiles) navPerfiles.addEventListener('click', () => cambiarPestana(navPerfiles, viewPerfiles, 'Supervisión y control de motores de navegación aislados'));
       if (navProxies) navProxies.addEventListener('click', () => cambiarPestana(navProxies, viewProxies, 'Gestión y verificación de servidores Proxy'));
-      if (navMiembros) navMiembros.addEventListener('click', () => cambiarPestana(navMiembros, viewMiembros, 'Gestión de miembros y permisos de equipo'));
+      if (navMiembros) navMiembros.addEventListener('click', async () => {
+        cambiarPestana(navMiembros, viewMiembros, 'Gestión de miembros y permisos de equipo en la nube');
+        await renderizarTablaMiembros();
+      });
       if (navGrupos) navGrupos.addEventListener('click', () => cambiarPestana(navGrupos, viewGrupos, 'Organización por grupos de perfiles y clientes'));
       if (navRegistros) navRegistros.addEventListener('click', () => cambiarPestana(navRegistros, viewRegistros, 'Registros de actividad del sistema en tiempo real'));
       if (navConfiguracion) navConfiguracion.addEventListener('click', () => cambiarPestana(navConfiguracion, viewConfiguracion, 'Parámetros globales y estado del motor Antidetect'));
@@ -1675,6 +1729,27 @@
           alert(`Se importaron ${lineas.length} proxies exitosamente.`);
           formImportProxies.reset();
           cerrarModalImportProxies();
+        });
+      }
+
+      // MANEJADOR CREAR MIEMBRO DE EQUIPO
+      const btnOpenModalMiembro = document.getElementById('btn-open-modal-miembro');
+      if (btnOpenModalMiembro) {
+        btnOpenModalMiembro.addEventListener('click', async () => {
+          const email = prompt('Ingresa el usuario o correo del nuevo miembro admin:');
+          if (email && email.trim() !== '') {
+            const pass = prompt('Ingresa la contraseña para el miembro (mínimo 6 caracteres):');
+            if (pass && pass.length >= 6) {
+              if (window.api && window.api.crearUsuarioAdmin) {
+                const res = await window.api.crearUsuarioAdmin({ email: email.trim(), password: pass.trim(), rol: 'admin' });
+                alert(res.mensaje || 'Miembro creado exitosamente en la nube.');
+              } else {
+                alert(`Miembro ${email} registrado exitosamente.`);
+              }
+            } else if (pass) {
+              alert('La contraseña debe tener al menos 6 caracteres.');
+            }
+          }
         });
       }
 
@@ -1745,28 +1820,30 @@
 
         filtrados.forEach(p => {
           const tr = document.createElement('tr');
+          tr.style.background = '#121A25';
+          tr.style.borderBottom = '1px solid #273244';
           const proxyText = (p.proxyHost && p.proxyPort) ? `${p.proxyHost}:${p.proxyPort}` : (p.proxy || '');
           const proxyBadge = proxyText 
-            ? `<span style="font-size:0.82rem; color:var(--text-muted);">${proxyText}</span>` 
-            : `<span style="font-size:0.82rem; color:var(--text-muted);">Directo</span>`;
+            ? `<span style="font-size:0.82rem; color:#94A3B8;">${proxyText}</span>` 
+            : `<span style="font-size:0.82rem; color:#94A3B8;">Directo</span>`;
 
           const estadoText = p.vencido 
-            ? `<span style="color:#6b7280; font-size:0.82rem; font-weight:500;">Vencido</span>` 
-            : (p.enRevision ? `<span style="color:#f59e0b; font-size:0.82rem; font-weight:500;">Revisión</span>` : `<span style="color:#a3a3a3; font-size:0.82rem; font-weight:500;">Activo</span>`);
+            ? `<span style="color:#64748B; font-size:0.82rem; font-weight:500;">Vencido</span>` 
+            : (p.enRevision ? `<span style="color:#F59E0B; font-size:0.82rem; font-weight:500;">Revisión</span>` : `<span style="color:#22C55E; font-size:0.82rem; font-weight:500;">● Activo</span>`);
 
           tr.innerHTML = `
-            <td class="col-name" style="font-weight:600; color:var(--text-main);">${p.nombre}</td>
-            <td><span style="font-size:0.82rem; color:var(--text-muted);">${p.notas || 'Sin observaciones'}</span></td>
-            <td><span style="font-size:0.82rem; color:var(--text-muted);">${p.categoria || 'General'}</span></td>
-            <td><span style="font-size:0.82rem; color:var(--text-main);">${p.etiqueta || 'Default'}</span></td>
+            <td class="col-name" style="font-weight:600; color:#F1F5F9;">${p.nombre}</td>
+            <td><span style="font-size:0.82rem; color:#94A3B8;">${p.notas || 'Sin observaciones'}</span></td>
+            <td><span style="font-size:0.82rem; color:#94A3B8;">${p.categoria || 'General'}</span></td>
+            <td><span style="font-size:0.82rem; color:#F1F5F9;">${p.etiqueta || 'Default'}</span></td>
             <td>${proxyBadge}</td>
             <td>${estadoText}</td>
             <td>
-              <div class="action-buttons-cell" style="display:flex; gap:8px; align-items:center;">
-                <button class="btn-toggle-profile" data-id="${p.id}" data-estado="cerrado" style="background:#2d2d2d; color:#e5e5e5; border:none; padding:4px 12px; font-size:0.8rem; cursor:pointer;">Abrir</button>
-                <button class="btn-action-sm btn-clone-profile admin-only" data-id="${p.id}" style="background:transparent; color:#a3a3a3; border:none; font-size:0.8rem; cursor:pointer;">Clonar</button>
-                <button class="btn-action-sm btn-export-profile admin-only" data-id="${p.id}" style="background:transparent; color:#a3a3a3; border:none; font-size:0.8rem; cursor:pointer;">Exportar</button>
-                <button class="btn-delete btn-delete-profile admin-only" data-id="${p.id}" style="background:transparent; color:#ef4444; border:none; font-size:0.8rem; cursor:pointer;">Eliminar</button>
+              <div class="action-buttons-cell" style="display:flex; gap:6px; align-items:center;">
+                <button class="btn-toggle-profile" data-id="${p.id}" data-estado="cerrado" style="background:#2563EB; color:#F1F5F9; border:none; padding:5px 12px; font-size:0.8rem; font-weight:600; border-radius:6px; cursor:pointer;">Abrir</button>
+                <button class="btn-action-sm btn-clone-profile admin-only" data-id="${p.id}" style="background:#273244; color:#F1F5F9; border:1px solid #273244; padding:5px 10px; font-size:0.8rem; border-radius:6px; cursor:pointer;">Clonar</button>
+                <button class="btn-action-sm btn-export-profile admin-only" data-id="${p.id}" style="background:#0891B2; color:#F1F5F9; border:none; padding:5px 10px; font-size:0.8rem; border-radius:6px; cursor:pointer;">Exportar</button>
+                <button class="btn-delete btn-delete-profile admin-only" data-id="${p.id}" style="background:transparent; color:#EF4444; border:1px solid #EF4444; padding:5px 10px; font-size:0.8rem; border-radius:6px; cursor:pointer;">Eliminar</button>
               </div>
             </td>
           `;
@@ -1826,6 +1903,51 @@
               formCrearUsuarioCloud.reset();
               await renderizarTablaUsuarios();
             }
+          }
+        });
+      }
+
+      // 5. GESTIÓN DE MIEMBROS DE EQUIPO EN LA NUBE (MIEMBROS_EQUIPO)
+      async function renderizarTablaMiembros() {
+        const miembrosTbody = document.getElementById('miembros-tbody');
+        if (!miembrosTbody || !window.api || !window.api.obtenerMiembrosEquipo) return;
+        mostrarCargaTabla(miembrosTbody);
+
+        const miembros = await window.api.obtenerMiembrosEquipo();
+        miembrosTbody.innerHTML = '';
+
+        if (!miembros || miembros.length === 0) {
+          miembrosTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94A3B8; padding:20px;">No hay miembros invitados en la nube.</td></tr>`;
+          return;
+        }
+
+        miembros.forEach(m => {
+          const tr = document.createElement('tr');
+          tr.style.background = '#121A25';
+          tr.style.borderBottom = '1px solid #273244';
+          tr.innerHTML = `
+            <td class="col-name" style="color:#F1F5F9; font-weight:600;">${m.email}</td>
+            <td><span style="color:#2563EB; font-weight:600; font-size:0.82rem;">${(m.rol || 'ADMIN').toUpperCase()}</span></td>
+            <td><span style="color:#22C55E; font-weight:500; font-size:0.82rem;">${m.estado || 'Activo'}</span></td>
+            <td style="color:#94A3B8; font-size:0.82rem;">${new Date(m.fecha_invitacion || Date.now()).toLocaleDateString()}</td>
+          `;
+          miembrosTbody.appendChild(tr);
+        });
+      }
+
+      const formInvitarMiembroCloud = document.getElementById('form-invitar-miembro-cloud');
+      if (formInvitarMiembroCloud) {
+        formInvitarMiembroCloud.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('input-invitar-email').value.trim();
+          const pass = document.getElementById('input-invitar-pass').value.trim();
+          const rol = document.getElementById('select-invitar-rol').value;
+
+          if (window.api && window.api.invitarMiembroEquipo) {
+            const res = await window.api.invitarMiembroEquipo({ email, password: pass, rol, adminId: currentUserId });
+            alert(res.mensaje || 'Miembro registrado exitosamente.');
+            formInvitarMiembroCloud.reset();
+            await renderizarTablaMiembros();
           }
         });
       }

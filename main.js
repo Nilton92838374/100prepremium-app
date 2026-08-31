@@ -175,39 +175,58 @@ function cargarPerfiles() {
       const perfilesIniciales = [
         { 
           id: '1830', 
-          nombre: 'CHATGPT PRO', 
-          etiqueta: 'IA MAXIMA',
-          categoria: 'Inteligencia Artificial',
-          etiquetaColor: '#5BC0BE',
-          urlAviso: '',
-          proxy: '', 
-          proxyHost: '',
-          proxyPort: '',
+          nombre: 'ChatGPT Pro Workstation', 
+          etiqueta: 'Principal',
+          categoria: 'IA Pro',
+          etiquetaColor: '#2d2d2d',
+          urlAviso: 'https://chatgpt.com',
+          proxy: '192.168.1.50:8080', 
+          proxyHost: '192.168.1.50',
+          proxyPort: '8080',
           proxyUser: '',
           proxyPass: '',
-          osTarget: 'Windows',
+          osTarget: 'Windows 11',
           userAgent: RANDOM_DESKTOP_UAS[0],
           cookie: '', 
-          syncStatus: 'local', 
-          cloudId: null 
+          syncStatus: 'cloud',
+          notas: 'Cuenta principal de automatización ChatGPT'
         },
         { 
           id: '1831', 
-          nombre: 'CLAUDE AI WORK', 
-          etiqueta: 'IA INVESTIGACION',
-          categoria: 'Inteligencia Artificial',
-          etiquetaColor: '#6FFFE9',
-          urlAviso: '',
-          proxy: '', 
-          proxyHost: '',
-          proxyPort: '',
+          nombre: 'E-Commerce Store Manager', 
+          etiqueta: 'Amazon',
+          categoria: 'Ventas',
+          etiquetaColor: '#374151',
+          urlAviso: 'https://sellercentral.amazon.com',
+          proxy: '10.0.0.15:3128', 
+          proxyHost: '10.0.0.15',
+          proxyPort: '3128',
           proxyUser: '',
           proxyPass: '',
-          osTarget: 'macOS',
+          osTarget: 'macOS Sonoma',
           userAgent: RANDOM_DESKTOP_UAS[1],
           cookie: '', 
-          syncStatus: 'local', 
-          cloudId: null 
+          syncStatus: 'cloud',
+          notas: 'Gestión de tienda principal Amazon US'
+        },
+        { 
+          id: '1832', 
+          nombre: 'Marketing Campaign Lead', 
+          etiqueta: 'Facebook',
+          categoria: 'Social',
+          etiquetaColor: '#4b5563',
+          urlAviso: 'https://business.facebook.com',
+          proxy: '172.16.0.42:8000', 
+          proxyHost: '172.16.0.42',
+          proxyPort: '8000',
+          proxyUser: '',
+          proxyPass: '',
+          osTarget: 'Linux Ubuntu',
+          userAgent: RANDOM_DESKTOP_UAS[2],
+          cookie: '', 
+          syncStatus: 'cloud',
+          enRevision: true,
+          notas: 'Campañas de anuncios Meta Ads'
         }
       ];
       fs.writeFileSync(perfilesFile, JSON.stringify(perfilesIniciales, null, 2), 'utf-8');
@@ -251,15 +270,36 @@ function cargarClientes() {
       const clientesIniciales = [
         { 
           id: 'c101', 
-          usuario: 'alpha_user',
+          usuario: 'cliente_alpha_pro',
           password: 'password123',
-          nombre: 'alpha_user', 
+          nombre: 'Cliente Alpha Pro', 
           fechaInicio: new Date().toISOString(),
           fechaVencimiento: '2026-12-31T23:59',
-          perfilesAsignados: ['1830', '1831'],
+          perfilesAsignados: ['1830'],
           hwidVinculado: null,
-          syncStatus: 'local',
-          cloudId: null
+          syncStatus: 'cloud'
+        },
+        { 
+          id: 'c102', 
+          usuario: 'empresa_soluciones_latam',
+          password: 'password123',
+          nombre: 'Empresa Soluciones LATAM', 
+          fechaInicio: new Date().toISOString(),
+          fechaVencimiento: '2026-11-30T23:59',
+          perfilesAsignados: ['1831'],
+          hwidVinculado: null,
+          syncStatus: 'cloud'
+        },
+        { 
+          id: 'c103', 
+          usuario: 'agencia_digital_vip',
+          password: 'password123',
+          nombre: 'Agencia Digital VIP', 
+          fechaInicio: new Date().toISOString(),
+          fechaVencimiento: '2027-01-15T23:59',
+          perfilesAsignados: ['1832'],
+          hwidVinculado: null,
+          syncStatus: 'cloud'
         }
       ];
       fs.writeFileSync(clientesFile, JSON.stringify(clientesIniciales, null, 2), 'utf-8');
@@ -420,7 +460,7 @@ app.whenReady().then(() => {
   });
 
   // ---------------------------------------------------------
-  // HANDLERS IPC DE PERFILES Y USUARIOS CLOUD
+  // HANDLERS IPC DE PERFILES Y USUARIOS CLOUD ESTRICTOS
   // ---------------------------------------------------------
   ipcMain.handle('obtener-perfiles', async (_event, userContext) => {
     if (supabase) {
@@ -430,7 +470,11 @@ app.whenReady().then(() => {
           query = query.eq('asignado_a', userContext.userId);
         }
         const { data, error } = await query;
-        if (!error && data) {
+        if (error) {
+          console.error('[SUPABASE FETCH ERROR]', error.message);
+          return { success: false, message: 'Error de lectura Supabase Cloud: ' + error.message };
+        }
+        if (data) {
           const perfilesCloud = data.map(p => ({
             id: p.id.toString(),
             nombre: p.nombre,
@@ -445,7 +489,7 @@ app.whenReady().then(() => {
             proxyPass: p.proxy_pass || p.proxyPass || '',
             osTarget: p.os_target || p.osTarget || 'Aleatorio',
             userAgent: p.user_agent || p.userAgent || '',
-            cookie: typeof p.cookies_data === 'string' ? p.cookies_data : JSON.stringify(p.cookies_data || []),
+            cookie: decryptAES(p.cookies_data),
             asignadoA: p.asignado_a || null,
             notas: p.notas || ''
           }));
@@ -453,7 +497,8 @@ app.whenReady().then(() => {
           return perfilesCloud;
         }
       } catch (sbErr) {
-        console.warn('[SUPABASE FETCH PERFILES WARNING]', sbErr.message);
+        console.error('[SUPABASE FETCH EXCEPTION]', sbErr.message);
+        return { success: false, message: sbErr.message };
       }
     }
     return cargarPerfiles();
@@ -482,25 +527,27 @@ app.whenReady().then(() => {
       };
 
       if (supabase) {
-        try {
-          await supabase.from('perfiles').insert([{
-            id: nuevoPerfil.id,
-            nombre: nuevoPerfil.nombre,
-            categoria: nuevoPerfil.categoria,
-            etiqueta: nuevoPerfil.etiqueta,
-            etiqueta_color: nuevoPerfil.etiquetaColor,
-            url_aviso: nuevoPerfil.urlAviso,
-            proxy_host: nuevoPerfil.proxyHost,
-            proxy_port: nuevoPerfil.proxyPort,
-            proxy_user: nuevoPerfil.proxyUser,
-            proxy_pass: nuevoPerfil.proxyPass,
-            os_target: nuevoPerfil.osTarget,
-            user_agent: nuevoPerfil.userAgent,
-            cookies_data: nuevoPerfil.cookie ? JSON.parse(nuevoPerfil.cookie) : [],
-            asignado_a: nuevoPerfil.asignadoA,
-            notas: nuevoPerfil.notas
-          }]);
-        } catch (sbErr) {}
+        const { error: insErr } = await supabase.from('perfiles').insert([{
+          id: nuevoPerfil.id,
+          nombre: nuevoPerfil.nombre,
+          categoria: nuevoPerfil.categoria,
+          etiqueta: nuevoPerfil.etiqueta,
+          etiqueta_color: nuevoPerfil.etiquetaColor,
+          url_aviso: nuevoPerfil.urlAviso,
+          proxy_host: nuevoPerfil.proxyHost,
+          proxy_port: nuevoPerfil.proxyPort,
+          proxy_user: nuevoPerfil.proxyUser,
+          proxy_pass: nuevoPerfil.proxyPass,
+          os_target: nuevoPerfil.osTarget,
+          user_agent: nuevoPerfil.userAgent,
+          cookies_data: encryptAES(nuevoPerfil.cookie),
+          asignado_a: nuevoPerfil.asignadoA,
+          notas: nuevoPerfil.notas
+        }]);
+
+        if (insErr) {
+          return { success: false, message: 'Error de escritura Supabase Cloud: ' + insErr.message };
+        }
       }
 
       const perfiles = cargarPerfiles();
@@ -510,6 +557,64 @@ app.whenReady().then(() => {
     } catch (err) {
       return { success: false, message: err.message };
     }
+  });
+
+  // SISTEMA DE CREACIÓN Y GESTIÓN DE MIEMBROS DE EQUIPO EN LA NUBE
+  ipcMain.handle('invitar-miembro-equipo', async (_event, memberData) => {
+    const { email, password, rol, adminId } = memberData || {};
+    if (!email) return { success: false, mensaje: 'El correo o usuario del miembro es requerido.' };
+    const passInput = (password && password.length >= 6) ? password.trim() : 'password123';
+    const rolInput = rol || 'admin';
+    const emailFormatted = email.includes('@') ? email.trim() : `${email.trim()}@100prepremium.com`;
+
+    if (supabase) {
+      try {
+        const { data: authData, error: authErr } = await supabase.auth.signUp({
+          email: emailFormatted,
+          password: passInput
+        });
+
+        if (authErr) {
+          console.warn('[SUPABASE SIGNUP NOTICE]', authErr.message);
+        }
+
+        const userId = (authData && authData.user) ? authData.user.id : `usr_${Date.now()}`;
+
+        await supabase.from('usuarios_roles').upsert([{
+          user_id: userId,
+          email: emailFormatted,
+          usuario: email.split('@')[0],
+          rol: rolInput
+        }]);
+
+        await supabase.from('miembros_equipo').upsert([{
+          admin_id: adminId || 'admin_master',
+          email: emailFormatted,
+          rol: rolInput,
+          estado: 'Activo',
+          fecha_invitacion: new Date().toISOString()
+        }]);
+
+        return { success: true, mensaje: `Miembro ${emailFormatted} creado exitosamente con la contraseña asignada.` };
+      } catch (err) {
+        return { success: false, mensaje: 'Error al registrar miembro: ' + err.message };
+      }
+    }
+    return { success: true, mensaje: `Miembro ${emailFormatted} registrado localmente.` };
+  });
+
+  ipcMain.handle('obtener-miembros-equipo', async () => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('miembros_equipo').select('*');
+        if (!error && data) return data;
+      } catch (err) {}
+    }
+    return [
+      { id: 1, email: 'admin_lead@100prepremium.com', estado: 'Activo', fecha_invitacion: new Date().toISOString() },
+      { id: 2, email: 'admin_tech@100prepremium.com', estado: 'Activo', fecha_invitacion: new Date().toISOString() },
+      { id: 3, email: 'admin_ops@100prepremium.com', estado: 'Activo', fecha_invitacion: new Date().toISOString() }
+    ];
   });
 
   ipcMain.handle('actualizar-perfil', async (_event, perfilData) => {
