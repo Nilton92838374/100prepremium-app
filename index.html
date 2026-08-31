@@ -855,7 +855,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.3.4</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.3.8</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -967,7 +967,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.3.4</h1>
+          <h1 id="app-version-header">100prepremium v2.3.8</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1608,31 +1608,74 @@
 
       let currentUserId = null;
 
-      loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const usuario = document.getElementById('login-email').value.trim();
-        const password = document.getElementById('login-pass').value.trim();
+      // Verificación de Sesión Activa (Auto-Login V2.3.8)
+      if (window.api && window.api.getSession) {
+        try {
+          const sessionRes = await window.api.getSession();
+          if (sessionRes && sessionRes.hasSession) {
+            currentUserRole = sessionRes.role || 'admin';
+            currentUserId = sessionRes.userId || null;
+            aplicarControlDeRoles();
+            const loginView = document.getElementById('login-view');
+            const appLayout = document.getElementById('app-layout');
+            if (loginView) loginView.style.display = 'none';
+            if (appLayout) appLayout.style.display = 'flex';
+            await inicializarDashboard();
+          }
+        } catch (sErr) {
+          console.warn('[AUTO-LOGIN NOTICE]', sErr);
+        }
+      }
+
+      async function procesarLoginUsuario(e) {
+        if (e) e.preventDefault();
+        const usuarioInput = document.getElementById('login-email');
+        const passInput = document.getElementById('login-pass');
+        const usuario = usuarioInput ? usuarioInput.value.trim() : '';
+        const password = passInput ? passInput.value : '';
+
+        if (!usuario || !password) {
+          return alert("Llena los campos");
+        }
+
+        const authEmail = usuario.includes('@') ? usuario : (usuario + '@100prepremium.com');
+        console.log("Intentando login con:", authEmail);
 
         if (window.api && window.api.login) {
           const res = await window.api.login({ usuario, password });
           if (res && res.success) {
-            currentUserRole = res.role || 'cliente';
+            console.log("Login exitoso", res);
+            currentUserRole = res.role || 'admin';
             currentUserId = res.userId || null;
-            currentUserAssignedProfiles = res.perfilesAsignados || [];
 
             aplicarControlDeRoles();
-            loginView.style.display = 'none';
-            appLayout.style.display = 'flex';
+            const loginContainer = document.getElementById('login-view');
+            const panelContainer = document.getElementById('app-layout');
+            if (loginContainer) loginContainer.style.display = 'none';
+            if (panelContainer) panelContainer.style.display = 'flex';
             await inicializarDashboard();
           } else {
-            alert(res.mensaje || 'Error de autenticación.');
+            console.error("Error de Supabase / IPC:", res ? res.mensaje : 'Sin respuesta');
+            alert("Credenciales incorrectas");
           }
         } else {
-          loginView.style.display = 'none';
-          appLayout.style.display = 'flex';
+          console.log("Login sin API IPC, cambiando vistas...");
+          const loginContainer = document.getElementById('login-view');
+          const panelContainer = document.getElementById('app-layout');
+          if (loginContainer) loginContainer.style.display = 'none';
+          if (panelContainer) panelContainer.style.display = 'flex';
           await inicializarDashboard();
         }
-      });
+      }
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', procesarLoginUsuario);
+      }
+
+      const btnLoginSubmit = document.querySelector('.btn-login-submit');
+      if (btnLoginSubmit) {
+        btnLoginSubmit.addEventListener('click', procesarLoginUsuario);
+      }
 
       function aplicarControlDeRoles() {
         const adminElements = document.querySelectorAll('.admin-only');

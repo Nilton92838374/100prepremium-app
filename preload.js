@@ -6,6 +6,7 @@ const ipcRenderer = electron.ipcRenderer;
 contextBridge.exposeInMainWorld('api', {
   getHwid: () => ipcRenderer.invoke('get-hwid'),
   login: (credentials) => ipcRenderer.invoke('login', credentials),
+  getSession: () => ipcRenderer.invoke('get-session'),
   obtenerPerfiles: () => ipcRenderer.invoke('obtener-perfiles'),
   crearPerfil: (data) => ipcRenderer.invoke('crear-perfil', data),
   clonarPerfil: (idOriginal) => ipcRenderer.invoke('clonar-perfil', idOriginal),

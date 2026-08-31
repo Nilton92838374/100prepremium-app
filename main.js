@@ -417,8 +417,8 @@ app.whenReady().then(() => {
       return { success: true, role: 'admin', usuario: 'admin', mensaje: "Bienvenido Administrador" };
     }
 
-    // Formateo transparente de usuario a email para Supabase Auth
-    const emailFormatted = usuarioInput.includes('@') ? usuarioInput : `${usuarioInput}@100prepremium.com`;
+    // Formateo transparente de usuario a email para Supabase Auth (Ghost Email)
+    const emailFormatted = usuarioInput.includes('@') ? usuarioInput.trim() : `${usuarioInput.trim()}@100prepremium.com`;
 
     if (supabase) {
       try {
@@ -427,7 +427,12 @@ app.whenReady().then(() => {
           password: passwordInput
         });
 
-        if (!authErr && authData && authData.user) {
+        if (authErr) {
+          console.warn('[SUPABASE AUTH WARNING]', authErr.message);
+          return { success: false, mensaje: "Credenciales incorrectas o usuario no encontrado" };
+        }
+
+        if (authData && authData.user) {
           const userId = authData.user.id;
           const { data: roleData } = await supabase
             .from('usuarios_roles')
@@ -435,7 +440,7 @@ app.whenReady().then(() => {
             .eq('user_id', userId)
             .single();
 
-          const rol = roleData ? roleData.rol : 'cliente';
+          const rol = roleData ? roleData.rol : 'admin';
           return {
             success: true,
             role: rol,
@@ -445,16 +450,47 @@ app.whenReady().then(() => {
           };
         }
       } catch (sbErr) {
-        console.warn('[SUPABASE AUTH WARNING]', sbErr.message);
+        console.warn('[SUPABASE AUTH EXCEPTION]', sbErr.message);
+        return { success: false, mensaje: "Credenciales incorrectas o usuario no encontrado" };
       }
     }
 
-    return { success: false, mensaje: "Credenciales incorrectas o usuario no registrado en Supabase Cloud." };
+    return { success: false, mensaje: "Credenciales incorrectas o usuario no encontrado" };
+  });
+
+  // VERIFICACIÓN DE SESIÓN ACTIVA (AUTO-LOGIN)
+  ipcMain.handle('get-session', async () => {
+    if (supabase) {
+      try {
+        const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+        if (!sessionErr && sessionData && sessionData.session && sessionData.session.user) {
+          const userId = sessionData.session.user.id;
+          const { data: roleData } = await supabase
+            .from('usuarios_roles')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+
+          const rol = roleData ? roleData.rol : 'admin';
+          return {
+            hasSession: true,
+            user: sessionData.session.user,
+            userId: userId,
+            role: rol,
+            usuario: (sessionData.session.user.email || '').split('@')[0]
+          };
+        }
+      } catch (err) {}
+    }
+    return { hasSession: false };
   });
 
   // LOGOUT (CERRAR SESIÓN)
   ipcMain.handle('logout', async () => {
     console.log('[AUTENTICACIÓN] Sesión cerrada por el usuario. Limpiando procesos activos...');
+    if (supabase) {
+      try { await supabase.auth.signOut(); } catch (e) {}
+    }
     await cerrarProcesosDefinitivamente();
     return { success: true };
   });
