@@ -1,7 +1,7 @@
 {
   "name": "100prepremium",
-  "version": "2.3.8",
-  "description": "100prepremium v2.3.8 - Suite Antidetección y Gestión Multicuenta Professional",
+  "version": "2.4.0",
+  "description": "100prepremium v2.4.0 - Suite Antidetección y Gestión Multicuenta Professional",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

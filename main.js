@@ -429,7 +429,7 @@ app.whenReady().then(() => {
 
         if (authErr) {
           console.warn('[SUPABASE AUTH WARNING]', authErr.message);
-          return { success: false, mensaje: "Credenciales incorrectas o usuario no encontrado" };
+          return { success: false, mensaje: authErr.message || "Credenciales incorrectas o usuario no encontrado" };
         }
 
         if (authData && authData.user) {
@@ -582,48 +582,50 @@ app.whenReady().then(() => {
     }
   });
 
-  // SISTEMA DE CREACIÓN Y GESTIÓN DE MIEMBROS DE EQUIPO EN LA NUBE
   ipcMain.handle('invitar-miembro-equipo', async (_event, memberData) => {
-    const { email, password, rol, adminId } = memberData || {};
-    if (!email) return { success: false, mensaje: 'El correo o usuario del miembro es requerido.' };
+    const { usuario, email, password, rol, adminId } = memberData || {};
+    const inputUser = (usuario || email || '').trim();
+    if (!inputUser) return { success: false, mensaje: 'Por favor, ingresa el nombre de usuario.' };
     const passInput = (password && password.length >= 6) ? password.trim() : 'password123';
     const rolInput = rol || 'admin';
-    const emailFormatted = email.includes('@') ? email.trim() : `${email.trim()}@100prepremium.com`;
+    const rawUsername = inputUser.split('@')[0];
+    const emailSecreto = inputUser.includes('@') ? inputUser : `${inputUser}@100prepremium.com`;
 
     if (supabase) {
       try {
         const { data: authData, error: authErr } = await supabase.auth.signUp({
-          email: emailFormatted,
+          email: emailSecreto,
           password: passInput
         });
 
         if (authErr) {
           console.warn('[SUPABASE SIGNUP NOTICE]', authErr.message);
+          return { success: false, mensaje: authErr.message };
         }
 
         const userId = (authData && authData.user) ? authData.user.id : `usr_${Date.now()}`;
 
         await supabase.from('usuarios_roles').upsert([{
           user_id: userId,
-          email: emailFormatted,
-          usuario: email.split('@')[0],
+          email: emailSecreto,
+          usuario: rawUsername,
           rol: rolInput
         }]);
 
         await supabase.from('miembros_equipo').upsert([{
           admin_id: adminId || 'admin_master',
-          email: emailFormatted,
+          email: emailSecreto,
           rol: rolInput,
           estado: 'Activo',
           fecha_invitacion: new Date().toISOString()
         }]);
 
-        return { success: true, mensaje: `Miembro ${emailFormatted} creado exitosamente con la contraseña asignada.` };
+        return { success: true, usuario: rawUsername, mensaje: `Usuario ${rawUsername} creado con éxito. Ya puede iniciar sesión.` };
       } catch (err) {
         return { success: false, mensaje: 'Error al registrar miembro: ' + err.message };
       }
     }
-    return { success: true, mensaje: `Miembro ${emailFormatted} registrado localmente.` };
+    return { success: true, usuario: rawUsername, mensaje: `Usuario ${rawUsername} creado con éxito. Ya puede iniciar sesión.` };
   });
 
   ipcMain.handle('obtener-miembros-equipo', async () => {

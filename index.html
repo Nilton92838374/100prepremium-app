@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>100prepremium v2.3.4 - Suite Antidetección Borderless</title>
+  <title>100prepremium v2.4.0 - Suite Antidetección Borderless</title>
 
   <!-- FUENTE INTER Y FLATPICKR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -855,7 +855,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.3.8</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.4.0</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -967,7 +967,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.3.8</h1>
+          <h1 id="app-version-header">100prepremium v2.4.0</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1150,22 +1150,14 @@
             </div>
             <form id="form-invitar-miembro-cloud" style="padding: 20px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 220px;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Nombre de usuario</label>
-                <input type="text" id="input-invitar-email" class="login-input" placeholder="ej. pepito23" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Nombre de Usuario</label>
+                <input type="text" id="input-nuevo-usuario" class="login-input" placeholder="ej. usuario123" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
               </div>
               <div style="flex: 1; min-width: 180px;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Contraseña Asignada</label>
-                <input type="password" id="input-invitar-pass" class="login-input" placeholder="Mínimo 6 caracteres" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Contraseña</label>
+                <input type="password" id="input-nueva-password" class="login-input" placeholder="Mínimo 6 caracteres" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
               </div>
-              <div style="width: 150px;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Rol Asignado</label>
-                <select id="select-invitar-rol" class="login-input" style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
-                  <option value="admin">Administrador</option>
-                  <option value="superadmin">Superadmin</option>
-                  <option value="cliente">Cliente</option>
-                </select>
-              </div>
-              <button type="submit" id="btn-submit-invitar-miembro" class="btn-create" style="background:#2563EB; color:#F1F5F9; padding: 10px 24px; border:none; border-radius: 6px; font-weight: 600; cursor:pointer;">+ Crear miembro</button>
+              <button type="submit" id="btn-submit-invitar-miembro" class="btn-create" style="background:#2563EB; color:#F1F5F9; padding: 10px 24px; border:none; border-radius: 6px; font-weight: 600; cursor:pointer;">Crear Usuario</button>
             </form>
           </div>
 
@@ -1629,42 +1621,63 @@
 
       async function procesarLoginUsuario(e) {
         if (e) e.preventDefault();
+        const btn = document.querySelector('.btn-login-submit');
+        const originalText = btn ? btn.innerText : 'Acceder al Panel';
+        if (btn) {
+          btn.innerText = 'Conectando...';
+          btn.disabled = true;
+        }
+
         const usuarioInput = document.getElementById('login-email');
         const passInput = document.getElementById('login-pass');
         const usuario = usuarioInput ? usuarioInput.value.trim() : '';
         const password = passInput ? passInput.value : '';
 
         if (!usuario || !password) {
-          return alert("Llena los campos");
+          if (btn) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+          }
+          return alert("Por favor, llena usuario y contraseña.");
         }
 
         const authEmail = usuario.includes('@') ? usuario : (usuario + '@100prepremium.com');
         console.log("Intentando login con:", authEmail);
 
-        if (window.api && window.api.login) {
-          const res = await window.api.login({ usuario, password });
-          if (res && res.success) {
-            console.log("Login exitoso", res);
-            currentUserRole = res.role || 'admin';
-            currentUserId = res.userId || null;
+        try {
+          if (window.api && window.api.login) {
+            const res = await window.api.login({ usuario, password });
+            if (res && res.success) {
+              console.log("Acceso concedido", res);
+              currentUserRole = res.role || 'admin';
+              currentUserId = res.userId || null;
 
-            aplicarControlDeRoles();
+              aplicarControlDeRoles();
+              const loginContainer = document.getElementById('login-view');
+              const panelContainer = document.getElementById('app-layout');
+              if (loginContainer) loginContainer.style.display = 'none';
+              if (panelContainer) panelContainer.style.display = 'flex';
+              await inicializarDashboard();
+            } else {
+              console.error("Fallo exacto de Supabase:", res ? res.mensaje : 'Sin respuesta');
+              alert("Error de Supabase: " + (res ? res.mensaje : "Credenciales incorrectas"));
+            }
+          } else {
+            console.log("Acceso concedido (Modo Standalone)");
             const loginContainer = document.getElementById('login-view');
             const panelContainer = document.getElementById('app-layout');
             if (loginContainer) loginContainer.style.display = 'none';
             if (panelContainer) panelContainer.style.display = 'flex';
             await inicializarDashboard();
-          } else {
-            console.error("Error de Supabase / IPC:", res ? res.mensaje : 'Sin respuesta');
-            alert("Credenciales incorrectas");
           }
-        } else {
-          console.log("Login sin API IPC, cambiando vistas...");
-          const loginContainer = document.getElementById('login-view');
-          const panelContainer = document.getElementById('app-layout');
-          if (loginContainer) loginContainer.style.display = 'none';
-          if (panelContainer) panelContainer.style.display = 'flex';
-          await inicializarDashboard();
+        } catch (err) {
+          console.error("Error crítico de código:", err);
+          alert("Error en la aplicación: " + err.message);
+        } finally {
+          if (btn) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+          }
         }
       }
 
@@ -2038,15 +2051,24 @@
       if (formInvitarMiembroCloud) {
         formInvitarMiembroCloud.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const email = document.getElementById('input-invitar-email').value.trim();
-          const pass = document.getElementById('input-invitar-pass').value.trim();
-          const rol = document.getElementById('select-invitar-rol').value;
+          const inputNuevoUsuario = document.getElementById('input-nuevo-usuario');
+          const inputNuevaPassword = document.getElementById('input-nueva-password');
+          const usuarioVal = inputNuevoUsuario ? inputNuevoUsuario.value.trim() : '';
+          const passVal = inputNuevaPassword ? inputNuevaPassword.value.trim() : '';
+
+          if (!usuarioVal || !passVal) {
+            return alert('Por favor, llena usuario y contraseña.');
+          }
 
           if (window.api && window.api.invitarMiembroEquipo) {
-            const res = await window.api.invitarMiembroEquipo({ email, password: pass, rol, adminId: currentUserId });
-            alert(res.mensaje || 'Miembro registrado exitosamente.');
-            formInvitarMiembroCloud.reset();
-            await renderizarTablaMiembros();
+            const res = await window.api.invitarMiembroEquipo({ usuario: usuarioVal, password: passVal, rol: 'cliente', adminId: currentUserId });
+            if (res && res.success) {
+              alert(`Usuario ${usuarioVal} creado con éxito. Ya puede iniciar sesión.`);
+              formInvitarMiembroCloud.reset();
+              await renderizarTablaMiembros();
+            } else {
+              alert(res ? res.mensaje : 'Error al crear usuario.');
+            }
           }
         });
       }
