@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>100prepremium v2.3.1 - Suite Antidetección Borderless</title>
+  <title>100prepremium v2.3.4 - Suite Antidetección Borderless</title>
 
   <!-- FUENTE INTER Y FLATPICKR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -855,7 +855,7 @@
     <div class="login-left">
       <div class="login-left-brand">
         <div class="icon">100</div>
-        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.3.1</span></h1>
+        <h1>100prepremium <span id="login-brand-version" style="font-size: 1rem; color: var(--text-muted);">v2.3.4</span></h1>
       </div>
       <div class="login-left-headline">
         Plataforma Antidetect para <span>gestión multicuentas</span>
@@ -874,8 +874,8 @@
 
         <form class="login-form" id="login-form">
           <div class="form-control-group">
-            <label for="login-email">Usuario / Email</label>
-            <input type="text" id="login-email" class="login-input" value="admin" placeholder="ej. admin o cliente@ejemplo.com" required autocomplete="username">
+            <label for="login-email">Usuario</label>
+            <input type="text" id="login-email" class="login-input" value="admin" placeholder="ej. pepito23" required autocomplete="username">
           </div>
 
           <div class="form-control-group">
@@ -967,7 +967,7 @@
     <div class="content-area">
       <header>
         <div class="header-title">
-          <h1 id="app-version-header">100prepremium v2.3.1</h1>
+          <h1 id="app-version-header">100prepremium v2.3.4</h1>
           <p id="view-subtitle">Supervisión y control de motores de navegación aislados</p>
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1150,8 +1150,8 @@
             </div>
             <form id="form-invitar-miembro-cloud" style="padding: 20px; display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
               <div style="flex: 1; min-width: 220px;">
-                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Usuario o Correo del Miembro</label>
-                <input type="text" id="input-invitar-email" class="login-input" placeholder="ej. miembro_ventas / usuario@100prepremium.com" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
+                <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Nombre de usuario</label>
+                <input type="text" id="input-invitar-email" class="login-input" placeholder="ej. pepito23" required style="width: 100%; margin-top: 6px; background:#0D1117; border: 1px solid #273244; color:#F1F5F9; padding: 8px 12px; border-radius: 6px;">
               </div>
               <div style="flex: 1; min-width: 180px;">
                 <label style="font-size: 0.8rem; font-weight: 600; color: #94A3B8;">Contraseña Asignada</label>
@@ -1176,7 +1176,7 @@
             <table class="profiles-table">
               <thead>
                 <tr style="background: #101722; color: #94A3B8;">
-                  <th>USUARIO / EMAIL</th>
+                  <th>NOMBRE DE USUARIO</th>
                   <th>ROL</th>
                   <th>ESTADO</th>
                   <th>FECHA REGISTRO</th>
@@ -1691,6 +1691,61 @@
       if (navRegistros) navRegistros.addEventListener('click', () => cambiarPestana(navRegistros, viewRegistros, 'Registros de actividad del sistema en tiempo real'));
       if (navConfiguracion) navConfiguracion.addEventListener('click', () => cambiarPestana(navConfiguracion, viewConfiguracion, 'Parámetros globales y estado del motor Antidetect'));
 
+      // MANEJADORES DEL MODAL CREAR PERFIL (SUPABASE CLOUD INSERCIÓN ESTRICTA V2.3.5)
+      const modalPerfil = document.getElementById('modal-nuevo-perfil');
+      const btnOpenModalPerfil = document.getElementById('btn-open-modal-perfil');
+      const btnCloseModalPerfil = document.getElementById('btn-close-modal-perfil');
+      const btnCancelModalPerfil = document.getElementById('btn-cancel-modal-perfil');
+      const formNuevoPerfil = document.getElementById('form-nuevo-perfil');
+
+      const abrirModalPerfil = () => { if (modalPerfil) modalPerfil.style.display = 'flex'; };
+      const cerrarModalPerfil = () => { if (modalPerfil) modalPerfil.style.display = 'none'; };
+
+      if (btnOpenModalPerfil) btnOpenModalPerfil.addEventListener('click', abrirModalPerfil);
+      if (btnCloseModalPerfil) btnCloseModalPerfil.addEventListener('click', cerrarModalPerfil);
+      if (btnCancelModalPerfil) btnCancelModalPerfil.addEventListener('click', cerrarModalPerfil);
+
+      if (formNuevoPerfil) {
+        formNuevoPerfil.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const nombre = document.getElementById('prof-nombre').value.trim();
+          const categoria = document.getElementById('prof-categoria').value.trim();
+          const etiqueta = document.getElementById('prof-etiqueta').value.trim();
+          const notas = document.getElementById('prof-notas').value.trim();
+          const userAgent = document.getElementById('prof-user-agent-custom').value.trim();
+          const asignadoA = document.getElementById('prof-asignado-cliente').value;
+
+          const host = document.getElementById('prof-proxy-host').value.trim();
+          const port = document.getElementById('prof-proxy-port').value.trim();
+          const proxy = (host && port) ? `${host}:${port}` : '';
+
+          const nuevoPerfilObj = {
+            nombre: nombre,
+            observacion: notas,
+            grupo: categoria || 'General',
+            etiqueta: etiqueta || 'GENERAL',
+            proxy: proxy,
+            estado: 'Activo',
+            user_agent: userAgent,
+            sistema_operativo: 'Windows 11',
+            asignadoA: asignadoA || null
+          };
+
+          if (window.api && window.api.crearPerfil) {
+            const res = await window.api.crearPerfil(nuevoPerfilObj);
+            if (res && res.success) {
+              alert(res.message || 'Perfil guardado exitosamente en Supabase Cloud.');
+              formNuevoPerfil.reset();
+              cerrarModalPerfil();
+              await renderizarTablaPerfiles();
+            } else {
+              console.error('[ERROR CREAR PERFIL]', res ? res.message : 'Error desconocido');
+              alert('Error al crear perfil en Supabase Cloud: ' + (res ? res.message : 'No hubo respuesta'));
+            }
+          }
+        });
+      }
+
       // MANEJADORES DEL MODAL CREAR GRUPO
       const modalGrupo = document.getElementById('modal-nuevo-grupo');
       const btnOpenModalGrupo = document.getElementById('btn-open-modal-grupo');
@@ -1925,8 +1980,9 @@
           const tr = document.createElement('tr');
           tr.style.background = '#121A25';
           tr.style.borderBottom = '1px solid #273244';
+          const cleanUsername = m.email ? m.email.replace('@100prepremium.com', '') : (m.usuario || 'miembro');
           tr.innerHTML = `
-            <td class="col-name" style="color:#F1F5F9; font-weight:600;">${m.email}</td>
+            <td class="col-name" style="color:#F1F5F9; font-weight:600;">${cleanUsername}</td>
             <td><span style="color:#2563EB; font-weight:600; font-size:0.82rem;">${(m.rol || 'ADMIN').toUpperCase()}</span></td>
             <td><span style="color:#22C55E; font-weight:500; font-size:0.82rem;">${m.estado || 'Activo'}</span></td>
             <td style="color:#94A3B8; font-size:0.82rem;">${new Date(m.fecha_invitacion || Date.now()).toLocaleDateString()}</td>

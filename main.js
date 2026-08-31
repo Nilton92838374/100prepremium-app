@@ -460,7 +460,7 @@ app.whenReady().then(() => {
   });
 
   // ---------------------------------------------------------
-  // HANDLERS IPC DE PERFILES Y USUARIOS CLOUD ESTRICTOS
+  // HANDLERS IPC DE PERFILES Y USUARIOS CLOUD ESTRICTOS (V2.3.5)
   // ---------------------------------------------------------
   ipcMain.handle('obtener-perfiles', async (_event, userContext) => {
     if (supabase) {
@@ -472,28 +472,31 @@ app.whenReady().then(() => {
         const { data, error } = await query;
         if (error) {
           console.error('[SUPABASE FETCH ERROR]', error.message);
-          return { success: false, message: 'Error de lectura Supabase Cloud: ' + error.message };
+          return { success: false, message: 'Error al consultar Supabase Cloud: ' + error.message };
         }
         if (data) {
           const perfilesCloud = data.map(p => ({
-            id: p.id.toString(),
-            nombre: p.nombre,
-            categoria: p.categoria || 'General',
+            id: (p.id || '').toString(),
+            nombre: p.nombre || 'Perfil Sin Nombre',
+            categoria: p.grupo || p.categoria || 'General',
+            grupo: p.grupo || p.categoria || 'General',
             etiqueta: p.etiqueta || 'GENERAL',
-            etiquetaColor: p.etiqueta_color || p.etiquetaColor || '#5BC0BE',
-            urlAviso: p.url_aviso || p.urlAviso || '',
+            etiquetaColor: p.etiqueta_color || '#2563EB',
+            urlAviso: p.url_aviso || '',
             proxy: p.proxy || (p.proxy_host && p.proxy_port ? `${p.proxy_host}:${p.proxy_port}` : ''),
-            proxyHost: p.proxy_host || p.proxyHost || '',
-            proxyPort: p.proxy_port || p.proxyPort || '',
-            proxyUser: p.proxy_user || p.proxyUser || '',
-            proxyPass: p.proxy_pass || p.proxyPass || '',
-            osTarget: p.os_target || p.osTarget || 'Aleatorio',
-            userAgent: p.user_agent || p.userAgent || '',
-            cookie: decryptAES(p.cookies_data),
+            proxyHost: p.proxy_host || '',
+            proxyPort: p.proxy_port || '',
+            proxyUser: p.proxy_user || '',
+            proxyPass: p.proxy_pass || '',
+            osTarget: p.sistema_operativo || p.os_target || 'Windows 11',
+            sistema_operativo: p.sistema_operativo || p.os_target || 'Windows 11',
+            userAgent: p.user_agent || '',
+            user_agent: p.user_agent || '',
+            estado: p.estado || 'Activo',
             asignadoA: p.asignado_a || null,
-            notas: p.notas || ''
+            notas: p.observacion || p.notas || '',
+            observacion: p.observacion || p.notas || ''
           }));
-          guardarPerfiles(perfilesCloud);
           return perfilesCloud;
         }
       } catch (sbErr) {
@@ -501,60 +504,44 @@ app.whenReady().then(() => {
         return { success: false, message: sbErr.message };
       }
     }
-    return cargarPerfiles();
+    return [];
   });
 
   ipcMain.handle('crear-perfil', async (_event, nuevoPerfilData) => {
+    if (!nuevoPerfilData || !nuevoPerfilData.nombre) {
+      return { success: false, message: 'El nombre del perfil es obligatorio.' };
+    }
+
+    if (!supabase) {
+      return { success: false, message: 'Error: Cliente de Supabase Cloud no inicializado.' };
+    }
+
     try {
-      const nuevoId = (Date.now() % 100000).toString().padStart(4, '0');
-      const nuevoPerfil = {
-        id: nuevoId,
-        nombre: nuevoPerfilData.nombre || `Perfil ${nuevoId}`,
-        etiqueta: nuevoPerfilData.etiqueta || 'GENERAL',
-        categoria: nuevoPerfilData.categoria || 'General',
-        etiquetaColor: nuevoPerfilData.etiquetaColor || '#5BC0BE',
-        urlAviso: nuevoPerfilData.urlAviso ? nuevoPerfilData.urlAviso.trim() : '',
-        proxy: nuevoPerfilData.proxy ? nuevoPerfilData.proxy.trim() : '',
-        proxyHost: nuevoPerfilData.proxyHost || '',
-        proxyPort: nuevoPerfilData.proxyPort || '',
-        proxyUser: nuevoPerfilData.proxyUser || '',
-        proxyPass: nuevoPerfilData.proxyPass || '',
-        osTarget: nuevoPerfilData.osTarget || 'Aleatorio',
-        userAgent: nuevoPerfilData.userAgent || '',
-        cookie: nuevoPerfilData.cookie ? nuevoPerfilData.cookie.trim() : '',
-        asignadoA: nuevoPerfilData.asignadoA || null,
-        notas: nuevoPerfilData.notas || ''
+      const objetoPerfil = {
+        nombre: nuevoPerfilData.nombre.trim(),
+        observacion: (nuevoPerfilData.observacion || nuevoPerfilData.notas || '').trim(),
+        grupo: (nuevoPerfilData.grupo || nuevoPerfilData.categoria || 'General').trim(),
+        etiqueta: (nuevoPerfilData.etiqueta || 'GENERAL').trim(),
+        proxy: (nuevoPerfilData.proxy || '').trim(),
+        estado: nuevoPerfilData.estado || 'Activo',
+        user_agent: (nuevoPerfilData.userAgent || nuevoPerfilData.user_agent || '').trim(),
+        sistema_operativo: nuevoPerfilData.osTarget || nuevoPerfilData.sistema_operativo || 'Windows 11',
+        asignado_a: nuevoPerfilData.asignadoA || null
       };
 
-      if (supabase) {
-        const { error: insErr } = await supabase.from('perfiles').insert([{
-          id: nuevoPerfil.id,
-          nombre: nuevoPerfil.nombre,
-          categoria: nuevoPerfil.categoria,
-          etiqueta: nuevoPerfil.etiqueta,
-          etiqueta_color: nuevoPerfil.etiquetaColor,
-          url_aviso: nuevoPerfil.urlAviso,
-          proxy_host: nuevoPerfil.proxyHost,
-          proxy_port: nuevoPerfil.proxyPort,
-          proxy_user: nuevoPerfil.proxyUser,
-          proxy_pass: nuevoPerfil.proxyPass,
-          os_target: nuevoPerfil.osTarget,
-          user_agent: nuevoPerfil.userAgent,
-          cookies_data: encryptAES(nuevoPerfil.cookie),
-          asignado_a: nuevoPerfil.asignadoA,
-          notas: nuevoPerfil.notas
-        }]);
+      const { data, error } = await supabase
+        .from('perfiles')
+        .insert([objetoPerfil]);
 
-        if (insErr) {
-          return { success: false, message: 'Error de escritura Supabase Cloud: ' + insErr.message };
-        }
+      if (error) {
+        console.error('[SUPABASE INSERT ERROR]', error.message);
+        return { success: false, message: 'Error al insertar en Supabase Cloud: ' + error.message };
       }
 
-      const perfiles = cargarPerfiles();
-      perfiles.push(nuevoPerfil);
-      guardarPerfiles(perfiles);
-      return { success: true, perfiles: perfiles };
+      console.log('[SUPABASE INSERT EXITOSO] Perfil creado:', objetoPerfil.nombre);
+      return { success: true, message: 'Perfil guardado exitosamente en Supabase Cloud.' };
     } catch (err) {
+      console.error('[CREAR PERFIL EXCEPCION]', err.message);
       return { success: false, message: err.message };
     }
   });
