@@ -1032,22 +1032,24 @@ app.whenReady().then(() => {
   });
 
   // Listener para búsqueda manual de actualizaciones desde el frontend
-  ipcMain.on('check-for-updates-manual', () => {
+  ipcMain.on('check-for-updates-manual', async () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-status', {
         status: 'checking',
         message: 'Buscando actualizaciones...'
       });
     }
-    autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-      console.error('[AUTO-UPDATER ERROR]', err);
+    try {
+      await autoUpdater.checkForUpdatesAndNotify();
+    } catch (error) {
+      console.log('Error de actualización atrapado de forma segura:', error);
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('update-status', {
           status: 'error',
-          message: 'Error al buscar actualizaciones.'
+          message: 'No se encontraron actualizaciones.'
         });
       }
-    });
+    }
   });
 
   // Configuración de actualizaciones silenciosas en segundo plano
@@ -1055,7 +1057,13 @@ app.whenReady().then(() => {
   autoUpdater.logger.transports.file.level = 'info';
 
   // Buscar actualizaciones sin avisar
-  autoUpdater.checkForUpdatesAndNotify();
+  try {
+    autoUpdater.checkForUpdatesAndNotify().catch((error) => {
+      console.log('Error de actualización atrapado de forma segura:', error);
+    });
+  } catch (error) {
+    console.log('Error de actualización atrapado de forma segura:', error);
+  }
 
   // Eventos de consola y notificaciones IPC al frontend
   autoUpdater.on('checking-for-update', () => {
@@ -1094,8 +1102,8 @@ app.whenReady().then(() => {
     }
   });
 
-  autoUpdater.on('error', (err) => {
-    console.error('[AUTO-UPDATER ERROR]', err);
+  autoUpdater.on('error', (error) => {
+    console.log('Error de actualización atrapado de forma segura:', error);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-status', {
         status: 'error',
